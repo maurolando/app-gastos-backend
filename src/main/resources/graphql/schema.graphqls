@@ -1,0 +1,93 @@
+type Categoria {
+    id: ID!
+    nombre: String!
+    icono: String
+    tipo: String!
+}
+
+type PagoCompartido {
+    id: ID!
+    persona: Persona!
+    monto: Float!
+    formaPago: String
+    fecha: String
+}
+
+type Gasto {
+    id: ID!
+    amount: Float!
+    categoria: Categoria
+    date: String!
+    description: String
+    formaPago: String
+    recurrent: Boolean
+    pagado: Boolean
+    fechaVencimiento: String
+    fechaPago: String
+    persona: Persona
+    esCompartido: Boolean
+    pagosCompartidos: [PagoCompartido]
+}
+
+type Persona {
+    id: ID!
+    nombre: String!
+    creadoEn: String
+    activo: Boolean
+    tieneClave: Boolean
+}
+
+type Ingreso {
+    id: ID!
+    monto: Float!
+    fecha: String!
+    categoria: Categoria
+    recurrent: Boolean
+    persona: Persona
+}
+
+type LastRecordsDates {
+    lastGasto: String
+    lastIngreso: String
+    lastBalance: String
+}
+
+type Compra {
+    id: ID!
+    nombre: String!
+    precio: Float
+    lugar: String
+    comprado: Boolean
+    fechaRegistro: String
+}
+
+type Query {
+    getAllGastos(mes: Int, anio: Int): [Gasto]!
+    getAllPersonas: [Persona]!
+    getAllIngresos(mes: Int, anio: Int): [Ingreso]!
+    getGlobalBalance(mes: Int, anio: Int): Float!
+    getAllCategorias(tipo: String): [Categoria]!
+    getLastRecordsDates: LastRecordsDates!
+    getPagosCompartidos(gastoId: ID!): [PagoCompartido]!
+    getShoppingList: [Compra]!
+}
+
+type Mutation {
+    createGasto(amount: Float!, categoriaId: ID!, date: String!, description: String, personaId: ID!, formaPago: String, recurrent: Boolean, pagado: Boolean, fechaVencimiento: String, esCompartido: Boolean): Gasto!
+    createPersona(nombre: String!): Persona!
+    updatePersona(id: ID!, nombre: String, activo: Boolean): Persona
+    createIngreso(monto: Float!, fecha: String!, categoriaId: ID!, personaId: ID!, recurrent: Boolean): Ingreso!
+    finalizarMes(mesActual: Int!, anioActual: Int!): Boolean
+    pagarGasto(id: ID!, monto: Float!, personaId: ID!, formaPago: String!, fechaPago: String!): Gasto!
+    reiniciarDatos: Boolean
+    createCategoria(nombre: String!, icono: String, tipo: String!): Categoria!
+    deleteCategoria(id: ID!): Boolean!
+    updateCategoria(id: ID!, nombre: String, icono: String, tipo: String): Categoria
+    agregarPagoCompartido(gastoId: ID!, personaId: ID!, monto: Float!, formaPago: String!, fecha: String): PagoCompartido!
+    login(nombre: String!, clave: String!): Persona
+    setClave(id: ID!, clave: String!): Persona
+    
+    createShoppingItem(nombre: String!, precio: Float, lugar: String): Compra!
+    toggleShoppingItemStatus(id: ID!): Compra!
+    deleteShoppingItem(id: ID!): Boolean!
+}
