@@ -15,6 +15,7 @@ public class CierreService {
 
     private final GastoService gastoService;
     private final IngresoService ingresoService;
+    private final AhorroService ahorroService;
 
     @Transactional
     public boolean finalizarMes(int mesActual, int anioActual) {
@@ -72,10 +73,12 @@ public class CierreService {
 
     @Transactional
     public boolean reiniciarDatos() {
-        System.out.println("Reiniciando datos (Gastos e Ingresos)...");
+        System.out.println("Reiniciando datos (Gastos, Ingresos y Ahorros)...");
         gastoService.deleteAll();
         ingresoService.deleteAll();
+        ahorroService.deleteAll();
         System.out.println("Datos reiniciados con éxito.");
         return true;
     }
 }
+
