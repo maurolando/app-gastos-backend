@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.3.final -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" 
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" 
+              name="resumen_mensual" 
+              pageWidth="595" 
+              pageHeight="842" 
+              columnWidth="555" 
+              leftMargin="20" 
+              rightMargin="20" 
+              topMargin="20" 
+              bottomMargin="20" 
+              uuid="c1b72e50-8b17-48f8-bcf9-30df32d431c1">
+    
+    <!-- Parameters -->
+    <parameter name="MES_ANIO" class="java.lang.String"/>
+    <parameter name="TOTAL_INGRESOS" class="java.lang.Double"/>
+    <parameter name="TOTAL_GASTOS" class="java.lang.Double"/>
+    <parameter name="TOTAL_AHORROS" class="java.lang.Double"/>
+    <parameter name="BALANCE" class="java.lang.Double"/>
+
+    <!-- Fields -->
+    <field name="fecha" class="java.lang.String"/>
+    <field name="tipo" class="java.lang.String"/>
+    <field name="descripcion" class="java.lang.String"/>
+    <field name="persona" class="java.lang.String"/>
+    <field name="monto" class="java.lang.Double"/>
+    <field name="formaPago" class="java.lang.String"/>
+    <field name="estado" class="java.lang.String"/>
+
+    <!-- Variables for subtotals -->
+    <variable name="SUBTOTAL_GRUPO" class="java.lang.Double" resetType="Group" resetGroup="TipoGroup" calculation="Sum">
+        <variableExpression><![CDATA[$F{monto}]]></variableExpression>
+    </variable>
+
+    <!-- Grouping by transaction type -->
+    <group name="TipoGroup">
+        <groupExpression><![CDATA[$F{tipo}]]></groupExpression>
+        <groupHeader>
+            <band height="45">
+                <!-- Group Title Bar -->
+                <rectangle>
+                    <reportElement x="0" y="5" width="555" height="20" backcolor="#F1F5F9" uuid="2a567df4-32b0-4f51-a957-c0e0e1a123f1"/>
+                    <graphicElement>
+                        <pen lineWidth="0.0"/>
+                    </graphicElement>
+                </rectangle>
+                <textField>
+                    <reportElement x="10" y="5" width="300" height="20" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7891"/>
+                    <textElement verticalAlignment="Middle">
+                        <font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{tipo}.toUpperCase()]]></textFieldExpression>
+                </textField>
+                
+                <!-- Table Headers -->
+                <staticText>
+                    <reportElement x="0" y="27" width="70" height="15" forecolor="#64748B" uuid="88e04b2b-581b-4f9e-bf33-f542a1be4300"/>
+                    <textElement verticalAlignment="Middle">
+                        <font fontName="SansSerif" size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Fecha]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement x="70" y="27" width="180" height="15" forecolor="#64748B" uuid="88e04b2b-581b-4f9e-bf33-f542a1be4301"/>
+                    <textElement verticalAlignment="Middle">
+                        <font fontName="SansSerif" size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Descripción / Categoría]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement x="250" y="27" width="90" height="15" forecolor="#64748B" uuid="88e04b2b-581b-4f9e-bf33-f542a1be4302"/>
+                    <textElement verticalAlignment="Middle">
+                        <font fontName="SansSerif" size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Persona]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement x="340" y="27" width="80" height="15" forecolor="#64748B" uuid="88e04b2b-581b-4f9e-bf33-f542a1be4303"/>
+                    <textElement verticalAlignment="Middle">
+                        <font fontName="SansSerif" size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[F. Pago]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement x="420" y="27" width="60" height="15" forecolor="#64748B" uuid="88e04b2b-581b-4f9e-bf33-f542a1be4304"/>
+                    <textElement verticalAlignment="Middle">
+                        <font fontName="SansSerif" size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Estado]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement x="480" y="27" width="75" height="15" forecolor="#64748B" uuid="88e04b2b-581b-4f9e-bf33-f542a1be4305"/>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font fontName="SansSerif" size="9" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[Monto]]></text>
+                </staticText>
+                
+                <!-- Thin line below headers -->
+                <line>
+                    <reportElement x="0" y="44" width="555" height="1" forecolor="#E2E8F0" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7892"/>
+                </line>
+            </band>
+        </groupHeader>
+        <groupFooter>
+            <band height="30">
+                <!-- Group Subtotal -->
+                <line>
+                    <reportElement x="0" y="2" width="555" height="1" forecolor="#E2E8F0" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7893"/>
+                </line>
+                <textField>
+                    <reportElement x="250" y="5" width="200" height="20" forecolor="#475569" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7894"/>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font fontName="SansSerif" size="9" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA["Total " + $F{tipo} + ":"]]></textFieldExpression>
+                </textField>
+                <textField pattern="#,##0 Gs.">
+                    <reportElement x="455" y="5" width="100" height="20" forecolor="#1E293B" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7895"/>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font fontName="SansSerif" size="10" isBold="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$V{SUBTOTAL_GRUPO}]]></textFieldExpression>
+                </textField>
+            </band>
+        </groupFooter>
+    </group>
+
+    <!-- Background -->
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+
+    <!-- Title Band (Header / Summary Cards) -->
+    <title>
+        <band height="160" splitType="Stretch">
+            <!-- Header Title -->
+            <staticText>
+                <reportElement x="0" y="0" width="350" height="28" forecolor="#1E293B" uuid="88e04b2b-581b-4f9e-bf33-f542a1be42fa"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="18" isBold="true" pdfFontName="Helvetica-Bold"/>
+                </textElement>
+                <text><![CDATA[REPORTE MENSUAL DE FINANZAS]]></text>
+            </staticText>
+            
+            <textField>
+                <reportElement x="0" y="28" width="200" height="18" forecolor="#64748B" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7880"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="12" isBold="false"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{MES_ANIO}]]></textFieldExpression>
+            </textField>
+
+            <!-- Generation Timestamp -->
+            <textField pattern="'Generado el' dd/MM/yyyy HH:mm">
+                <reportElement x="355" y="0" width="200" height="20" forecolor="#94A3B8" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7881"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+            </textField>
+
+            <!-- Divider Line -->
+            <line>
+                <reportElement x="0" y="52" width="555" height="1" forecolor="#CBD5E1" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7882"/>
+            </line>
+
+            <!-- Summary Cards -->
+            <!-- 1. Ingresos Card -->
+            <rectangle radius="6">
+                <reportElement x="0" y="65" width="130" height="75" forecolor="#E2E8F0" backcolor="#F8FAFC" uuid="b1f7a552-32b0-4f51-a957-c0e0e1a123f1"/>
+                <graphicElement>
+                    <pen lineWidth="1.0" lineColor="#10B981"/>
+                </graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="8" y="73" width="114" height="14" forecolor="#64748B" uuid="88e04b2b-581b-4f9e-bf33-f542a1be4310"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[INGRESOS DISPONIBLES]]></text>
+            </staticText>
+            <textField pattern="#,##0 Gs.">
+                <reportElement x="4" y="95" width="122" height="22" forecolor="#10B981" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7883"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{TOTAL_INGRESOS}]]></textFieldExpression>
+            </textField>
+
+            <!-- 2. Gastos Card -->
+            <rectangle radius="6">
+                <reportElement x="142" y="65" width="130" height="75" forecolor="#E2E8F0" backcolor="#F8FAFC" uuid="b1f7a552-32b0-4f51-a957-c0e0e1a123f2"/>
+                <graphicElement>
+                    <pen lineWidth="1.0" lineColor="#EF4444"/>
+                </graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="150" y="73" width="114" height="14" forecolor="#64748B" uuid="88e04b2b-581b-4f9e-bf33-f542a1be4311"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[GASTO TOTAL]]></text>
+            </staticText>
+            <textField pattern="#,##0 Gs.">
+                <reportElement x="146" y="95" width="122" height="22" forecolor="#EF4444" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7884"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{TOTAL_GASTOS}]]></textFieldExpression>
+            </textField>
+
+            <!-- 3. Ahorros Card -->
+            <rectangle radius="6">
+                <reportElement x="284" y="65" width="130" height="75" forecolor="#E2E8F0" backcolor="#F8FAFC" uuid="b1f7a552-32b0-4f51-a957-c0e0e1a123f3"/>
+                <graphicElement>
+                    <pen lineWidth="1.0" lineColor="#6366F1"/>
+                </graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="292" y="73" width="114" height="14" forecolor="#64748B" uuid="88e04b2b-581b-4f9e-bf33-f542a1be4312"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[AHORRO TOTAL]]></text>
+            </staticText>
+            <textField pattern="#,##0 Gs.">
+                <reportElement x="288" y="95" width="122" height="22" forecolor="#6366F1" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7885"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{TOTAL_AHORROS}]]></textFieldExpression>
+            </textField>
+
+            <!-- 4. Balance Card -->
+            <rectangle radius="6">
+                <reportElement x="425" y="65" width="130" height="75" forecolor="#E2E8F0" backcolor="#F8FAFC" uuid="b1f7a552-32b0-4f51-a957-c0e0e1a123f4"/>
+                <graphicElement>
+                    <pen lineWidth="1.0" lineColor="#475569"/>
+                </graphicElement>
+            </rectangle>
+            <staticText>
+                <reportElement x="433" y="73" width="114" height="14" forecolor="#64748B" uuid="88e04b2b-581b-4f9e-bf33-f542a1be4313"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <text><![CDATA[BALANCE GLOBAL]]></text>
+            </staticText>
+            <textField pattern="#,##0 Gs.">
+                <reportElement x="429" y="95" width="122" height="22" forecolor="#1E293B" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7886"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="11" isBold="true" pdfFontName="Helvetica-Bold"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{BALANCE}]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <!-- Detail Band (Table Rows) -->
+    <detail>
+        <band height="20" splitType="Stretch">
+            <textField>
+                <reportElement x="0" y="2" width="70" height="15" forecolor="#334155" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7896"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{fecha}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="StretchHeight">
+                <reportElement x="70" y="2" width="180" height="15" forecolor="#1E293B" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7897"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{descripcion}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="250" y="2" width="90" height="15" forecolor="#475569" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7898"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{persona}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="340" y="2" width="80" height="15" forecolor="#475569" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb7899"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{formaPago}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="420" y="2" width="60" height="15" forecolor="#64748B" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb78aa"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{estado}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0 Gs.">
+                <reportElement x="480" y="2" width="75" height="15" forecolor="#1E293B" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb78ab"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{monto}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <!-- Page Footer Band -->
+    <pageFooter>
+        <band height="25" splitType="Stretch">
+            <line>
+                <reportElement x="0" y="2" width="555" height="1" forecolor="#E2E8F0" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb78ac"/>
+            </line>
+            <textField>
+                <reportElement x="350" y="5" width="150" height="15" forecolor="#94A3B8" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb78ad"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Página " + $V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+            <textField evaluationTime="Report">
+                <reportElement x="500" y="5" width="55" height="15" forecolor="#94A3B8" uuid="7cf4f580-c1e0-47cb-95a2-0d1964eb78ae"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <textFieldExpression><![CDATA[" de " + $V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="0" y="5" width="200" height="15" forecolor="#94A3B8" uuid="88e04b2b-581b-4f9e-bf33-f542a1be4320"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="SansSerif" size="8"/>
+                </textElement>
+                <text><![CDATA[Control de Gastos - Todos los derechos reservados.]]></text>
+            </staticText>
+        </band>
+    </pageFooter>
+</jasperReport>

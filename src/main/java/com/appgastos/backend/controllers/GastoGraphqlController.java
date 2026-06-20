@@ -9,6 +9,7 @@ import com.appgastos.backend.services.GastoService;
 import com.appgastos.backend.services.IngresoService;
 import com.appgastos.backend.services.PagoCompartidoService;
 import com.appgastos.backend.services.AhorroService;
+import com.appgastos.backend.services.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -28,6 +29,7 @@ public class GastoGraphqlController {
     private final CierreService cierreService;
     private final CategoriaService categoriaService;
     private final PagoCompartidoService pagoCompartidoService;
+    private final ReportService reportService;
     private final AhorroService ahorroService;
 
     @QueryMapping
@@ -77,6 +79,16 @@ public class GastoGraphqlController {
         dates.put("lastBalance", lastBalance != null ? lastBalance.toString() : "N/A");
         
         return dates;
+    }
+
+    @QueryMapping
+    public String generarReporteMensual(@Argument Integer mes, @Argument Integer anio) {
+        try {
+            return reportService.generarReporteMensual(mes, anio);
+        } catch (Exception e) {
+            System.err.println("Error en generarReporteMensual: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     @MutationMapping
