@@ -5,6 +5,14 @@ type Categoria {
     tipo: String!
 }
 
+type Presupuesto {
+    id: ID!
+    categoria: Categoria!
+    monto: Float!
+    mes: Int!
+    anio: Int!
+}
+
 type PagoCompartido {
     id: ID!
     persona: Persona!
@@ -80,6 +88,7 @@ type Query {
     generarReporteMensual(mes: Int!, anio: Int!): String!
     getPagosCompartidos(gastoId: ID!): [PagoCompartido]!
     getShoppingList: [Compra]!
+    getPresupuestos(mes: Int!, anio: Int!): [Presupuesto]!
 }
 
 type Mutation {
@@ -102,5 +111,7 @@ type Mutation {
     createShoppingItem(nombre: String!, precio: Float, lugar: String): Compra!
     toggleShoppingItemStatus(id: ID!): Compra!
     deleteShoppingItem(id: ID!): Boolean!
+    
+    setPresupuesto(categoriaId: ID!, monto: Float!, mes: Int!, anio: Int!): Presupuesto!
 }
 
