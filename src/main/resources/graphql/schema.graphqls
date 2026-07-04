@@ -35,6 +35,8 @@ type Gasto {
     persona: Persona
     esCompartido: Boolean
     pagosCompartidos: [PagoCompartido]
+    cuotaActual: Int
+    cuotasTotales: Int
 }
 
 type Persona {
@@ -92,7 +94,7 @@ type Query {
 }
 
 type Mutation {
-    createGasto(amount: Float!, categoriaId: ID!, date: String!, description: String, personaId: ID!, formaPago: String, recurrent: Boolean, pagado: Boolean, fechaVencimiento: String, esCompartido: Boolean): Gasto!
+    createGasto(amount: Float!, categoriaId: ID!, date: String!, description: String, personaId: ID!, formaPago: String, recurrent: Boolean, pagado: Boolean, fechaVencimiento: String, esCompartido: Boolean, cuotaActual: Int, cuotasTotales: Int): Gasto!
     createPersona(nombre: String!): Persona!
     updatePersona(id: ID!, nombre: String, activo: Boolean): Persona
     createIngreso(monto: Float!, fecha: String!, categoriaId: ID!, personaId: ID!, recurrent: Boolean): Ingreso!

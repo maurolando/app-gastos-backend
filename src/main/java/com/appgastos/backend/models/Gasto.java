@@ -26,6 +26,8 @@ public class Gasto {
     private LocalDate fechaVencimiento;
     private LocalDate fechaPago;
     private Boolean esCompartido;
+    private Integer cuotaActual;
+    private Integer cuotasTotales;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "persona_id", nullable = true)

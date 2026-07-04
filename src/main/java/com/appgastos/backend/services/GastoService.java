@@ -42,7 +42,8 @@ public class GastoService {
     }
 
     public Gasto createGasto(Double amount, Long categoriaId, LocalDate date, String description, Long personaId,
-            String formaPago, Boolean recurrent, Boolean pagado, LocalDate fechaVencimiento, Boolean esCompartido) {
+            String formaPago, Boolean recurrent, Boolean pagado, LocalDate fechaVencimiento, Boolean esCompartido,
+            Integer cuotaActual, Integer cuotasTotales) {
         Persona persona = personaId != null ? personaRepository.findById(personaId).orElse(null) : null;
         Categoria categoria = categoriaId != null ? categoriaRepository.findById(categoriaId).orElse(null) : null;
 
@@ -57,6 +58,8 @@ public class GastoService {
         gasto.setPagado(pagado != null ? pagado : false);
         gasto.setFechaVencimiento(fechaVencimiento);
         gasto.setEsCompartido(esCompartido != null && esCompartido);
+        gasto.setCuotaActual(cuotaActual);
+        gasto.setCuotasTotales(cuotasTotales);
 
         return repository.save(gasto);
     }
