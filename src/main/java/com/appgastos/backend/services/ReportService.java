@@ -56,8 +56,18 @@ public class ReportService {
 
             for (Gasto g : gastos) {
                 String catName = g.getCategoria() != null ? g.getCategoria().getNombre() : "Gasto";
+                StringBuilder descBuilder = new StringBuilder();
                 if (g.getDescription() != null && !g.getDescription().trim().isEmpty()) {
-                    catName += " - " + g.getDescription();
+                    descBuilder.append(g.getDescription().trim());
+                }
+                if (g.getCuotaActual() != null && g.getCuotasTotales() != null) {
+                    if (descBuilder.length() > 0) {
+                        descBuilder.append(" ");
+                    }
+                    descBuilder.append("(CUOTA ").append(g.getCuotaActual()).append("/").append(g.getCuotasTotales()).append(")");
+                }
+                if (descBuilder.length() > 0) {
+                    catName += " - " + descBuilder.toString();
                 }
                 String persName = g.getPersona() != null ? g.getPersona().getNombre() : "N/A";
                 String fechaStr = g.getDate() != null ? g.getDate().format(formatter) : "N/A";

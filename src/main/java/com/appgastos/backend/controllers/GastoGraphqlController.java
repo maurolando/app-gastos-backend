@@ -102,10 +102,12 @@ public class GastoGraphqlController {
             @Argument Boolean recurrent,
             @Argument Boolean pagado,
             @Argument String fechaVencimiento,
-            @Argument Boolean esCompartido) {
+            @Argument Boolean esCompartido,
+            @Argument Integer cuotaActual,
+            @Argument Integer cuotasTotales) {
         try {
             LocalDate parsedVencimiento = (fechaVencimiento != null && !fechaVencimiento.isEmpty()) ? LocalDate.parse(fechaVencimiento) : null;
-            return service.createGasto(amount, categoriaId, LocalDate.parse(date), description, personaId, formaPago, recurrent, pagado, parsedVencimiento, esCompartido);
+            return service.createGasto(amount, categoriaId, LocalDate.parse(date), description, personaId, formaPago, recurrent, pagado, parsedVencimiento, esCompartido, cuotaActual, cuotasTotales);
         } catch (Exception e) {
             System.err.println("Error en createGasto: " + e.getMessage());
             throw new RuntimeException(e);

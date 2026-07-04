@@ -33,6 +33,17 @@ public class CierreService {
         System.out.println("Gastos recurrentes encontrados: " + gastosRecurrentes.size());
 
         for (Gasto g : gastosRecurrentes) {
+            Integer cuotaActual = g.getCuotaActual();
+            Integer cuotasTotales = g.getCuotasTotales();
+
+            if (cuotasTotales != null && cuotaActual != null) {
+                if (cuotaActual >= cuotasTotales) {
+                    System.out.println("Gasto fijo recurrente finalizado (todas las cuotas cubiertas): " + g.getDescription());
+                    continue; // No se crea para el mes siguiente ya que se completaron las cuotas
+                }
+                cuotaActual = cuotaActual + 1; // Avanza a la siguiente cuota
+            }
+
             LocalDate nextDate = g.getDate().plusMonths(1);
             LocalDate nextVencimiento = g.getFechaVencimiento() != null ? g.getFechaVencimiento().plusMonths(1) : null;
             gastoService.createGasto(
@@ -45,7 +56,9 @@ public class CierreService {
                     true,
                     false, // Siempre empieza como no pagado el nuevo mes
                     nextVencimiento,
-                    g.getEsCompartido() // Mantiene el flag de compartido
+                    g.getEsCompartido(), // Mantiene el flag de compartido
+                    cuotaActual,
+                    cuotasTotales
             );
         }
 
