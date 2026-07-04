@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/maurolando/app-gastos-backend/compare/v1.1.0...v1.2.0) (2026-07-04)
+
+
+### Features
+
+* implementar cuotas en pagos fijos (gastos fijos) ([74fdcde](https://github.com/maurolando/app-gastos-backend/commit/74fdcdeeae734c3d49feffed77689f95d36b4b58))
+
 ## [1.1.0](https://github.com/maurolando/app-gastos-backend/compare/v1.0.0...v1.1.0) (2026-06-27)
 
 
