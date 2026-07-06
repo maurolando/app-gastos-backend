@@ -115,6 +115,31 @@ public class GastoGraphqlController {
     }
 
     @MutationMapping
+    public Gasto updateGasto(
+            @Argument Long id,
+            @Argument Double amount,
+            @Argument Long categoriaId,
+            @Argument String date,
+            @Argument String description,
+            @Argument Long personaId,
+            @Argument String formaPago,
+            @Argument Boolean recurrent,
+            @Argument Boolean pagado,
+            @Argument String fechaVencimiento,
+            @Argument Boolean esCompartido,
+            @Argument Integer cuotaActual,
+            @Argument Integer cuotasTotales) {
+        try {
+            LocalDate parsedVencimiento = (fechaVencimiento != null && !fechaVencimiento.isEmpty()) ? LocalDate.parse(fechaVencimiento) : null;
+            LocalDate parsedDate = (date != null && !date.isEmpty()) ? LocalDate.parse(date) : LocalDate.now();
+            return service.updateGasto(id, amount, categoriaId, parsedDate, description, personaId, formaPago, recurrent, pagado, parsedVencimiento, esCompartido, cuotaActual, cuotasTotales);
+        } catch (Exception e) {
+            System.err.println("Error en updateGasto: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    @MutationMapping
     public Gasto pagarGasto(
             @Argument Long id,
             @Argument Double monto,

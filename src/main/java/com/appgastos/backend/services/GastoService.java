@@ -7,6 +7,7 @@ import com.appgastos.backend.repositories.GastoRepository;
 import com.appgastos.backend.repositories.PersonaRepository;
 import com.appgastos.backend.repositories.PagoCompartidoRepository;
 import com.appgastos.backend.models.Persona;
+import com.appgastos.backend.models.PagoCompartido;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -81,6 +82,44 @@ public class GastoService {
         gasto.setFormaPago(formaPago);
         gasto.setFechaPago(fechaPago != null ? fechaPago : LocalDate.now());
         gasto.setPagado(true);
+
+        return repository.save(gasto);
+    }
+
+    public Gasto updateGasto(Long id, Double amount, Long categoriaId, LocalDate date, String description, Long personaId,
+            String formaPago, Boolean recurrent, Boolean pagado, LocalDate fechaVencimiento, Boolean esCompartido,
+            Integer cuotaActual, Integer cuotasTotales) {
+        Gasto gasto = repository.findById(id).orElseThrow(() -> new RuntimeException("Gasto no encontrado"));
+        Persona persona = personaId != null ? personaRepository.findById(personaId).orElse(null) : null;
+        Categoria categoria = categoriaId != null ? categoriaRepository.findById(categoriaId).orElse(null) : null;
+
+        gasto.setAmount(amount);
+        gasto.setCategoria(categoria);
+        gasto.setDate(date != null ? date : LocalDate.now());
+        gasto.setDescription(description);
+        gasto.setPersona(persona);
+        gasto.setFormaPago(formaPago);
+        gasto.setRecurrent(recurrent != null && recurrent);
+        gasto.setFechaVencimiento(fechaVencimiento);
+        gasto.setEsCompartido(esCompartido != null && esCompartido);
+        gasto.setCuotaActual(cuotaActual);
+        gasto.setCuotasTotales(cuotasTotales);
+
+        if (Boolean.TRUE.equals(gasto.getEsCompartido())) {
+            double totalPagado = pagoCompartidoRepository.findByGastoId(id)
+                    .stream().mapToDouble(PagoCompartido::getMonto).sum();
+            if (totalPagado >= amount) {
+                gasto.setPagado(true);
+                if (gasto.getFechaPago() == null) {
+                    gasto.setFechaPago(LocalDate.now());
+                }
+            } else {
+                gasto.setPagado(false);
+                gasto.setFechaPago(null);
+            }
+        } else {
+            gasto.setPagado(pagado != null ? pagado : false);
+        }
 
         return repository.save(gasto);
     }
