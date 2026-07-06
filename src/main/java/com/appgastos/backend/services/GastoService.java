@@ -10,6 +10,7 @@ import com.appgastos.backend.models.Persona;
 import com.appgastos.backend.models.PagoCompartido;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -119,6 +120,26 @@ public class GastoService {
             }
         } else {
             gasto.setPagado(pagado != null ? pagado : false);
+        }
+
+        return repository.save(gasto);
+    }
+
+    @Transactional
+    public Gasto deshacerPago(Long id) {
+        Gasto gasto = repository.findById(id).orElseThrow(() -> new RuntimeException("Gasto no encontrado"));
+        gasto.setPagado(false);
+        gasto.setFechaPago(null);
+        gasto.setFormaPago(null);
+
+        if (Boolean.TRUE.equals(gasto.getEsCompartido())) {
+            List<PagoCompartido> pagos = pagoCompartidoRepository.findByGastoId(id);
+            if (pagos != null && !pagos.isEmpty()) {
+                pagoCompartidoRepository.deleteAll(pagos);
+            }
+            if (gasto.getPagosCompartidos() != null) {
+                gasto.getPagosCompartidos().clear();
+            }
         }
 
         return repository.save(gasto);

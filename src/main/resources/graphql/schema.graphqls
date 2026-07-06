@@ -96,6 +96,7 @@ type Query {
 type Mutation {
     createGasto(amount: Float!, categoriaId: ID!, date: String!, description: String, personaId: ID!, formaPago: String, recurrent: Boolean, pagado: Boolean, fechaVencimiento: String, esCompartido: Boolean, cuotaActual: Int, cuotasTotales: Int): Gasto!
     updateGasto(id: ID!, amount: Float!, categoriaId: ID!, date: String!, description: String, personaId: ID!, formaPago: String, recurrent: Boolean, pagado: Boolean, fechaVencimiento: String, esCompartido: Boolean, cuotaActual: Int, cuotasTotales: Int): Gasto!
+    deshacerPago(id: ID!): Gasto!
     createPersona(nombre: String!): Persona!
     updatePersona(id: ID!, nombre: String, activo: Boolean): Persona
     createIngreso(monto: Float!, fecha: String!, categoriaId: ID!, personaId: ID!, recurrent: Boolean): Ingreso!

@@ -140,6 +140,16 @@ public class GastoGraphqlController {
     }
 
     @MutationMapping
+    public Gasto deshacerPago(@Argument Long id) {
+        try {
+            return service.deshacerPago(id);
+        } catch (Exception e) {
+            System.err.println("Error en deshacerPago: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    @MutationMapping
     public Gasto pagarGasto(
             @Argument Long id,
             @Argument Double monto,
