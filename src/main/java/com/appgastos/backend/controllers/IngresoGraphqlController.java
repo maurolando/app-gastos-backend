@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
 public class IngresoGraphqlController {
 
     private final IngresoService ingresoService;
