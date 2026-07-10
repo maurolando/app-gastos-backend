@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/maurolando/app-gastos-backend/compare/v1.2.0...v1.2.1) (2026-07-10)
+
+
+### Bug Fixes
+
+* remove hardcoded DB credentials from application.properties ([9def3ca](https://github.com/maurolando/app-gastos-backend/commit/9def3caf0108158a4bf38640a4ae29775fbabf04))
+
 ## [1.2.0](https://github.com/maurolando/app-gastos-backend/compare/v1.1.0...v1.2.0) (2026-07-04)
 
 
