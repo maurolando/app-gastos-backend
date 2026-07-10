@@ -47,6 +47,11 @@ type Persona {
     tieneClave: Boolean
 }
 
+type LoginResult {
+    token: String!
+    persona: Persona!
+}
+
 type Ingreso {
     id: ID!
     monto: Float!
@@ -107,7 +112,7 @@ type Mutation {
     deleteCategoria(id: ID!): Boolean!
     updateCategoria(id: ID!, nombre: String, icono: String, tipo: String): Categoria
     agregarPagoCompartido(gastoId: ID!, personaId: ID!, monto: Float!, formaPago: String!, fecha: String): PagoCompartido!
-    login(nombre: String!, clave: String!): Persona
+    login(nombre: String!, clave: String!): LoginResult
     setClave(id: ID!, clave: String!): Persona
     
     createShoppingItem(nombre: String!, precio: Float, lugar: String): Compra!
