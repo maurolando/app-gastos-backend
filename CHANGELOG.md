@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/maurolando/app-gastos-backend/compare/v1.2.1...v1.3.0) (2026-07-10)
+
+
+### Features
+
+* add JWT authentication to protect GraphQL endpoints ([c1b0fbb](https://github.com/maurolando/app-gastos-backend/commit/c1b0fbb100ebecb55d1669ae06dabd8164791b4b))
+
 ## [1.2.1](https://github.com/maurolando/app-gastos-backend/compare/v1.2.0...v1.2.1) (2026-07-10)
 
 
