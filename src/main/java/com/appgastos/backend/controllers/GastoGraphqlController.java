@@ -1,5 +1,6 @@
 package com.appgastos.backend.controllers;
 
+import com.appgastos.backend.dto.CierreResult;
 import com.appgastos.backend.models.Categoria;
 import com.appgastos.backend.models.Gasto;
 import com.appgastos.backend.models.PagoCompartido;
@@ -117,6 +118,43 @@ public class GastoGraphqlController {
     }
 
     @MutationMapping
+    public Gasto updateGasto(
+            @Argument Long id,
+            @Argument Double amount,
+            @Argument Long categoriaId,
+            @Argument String date,
+            @Argument String description,
+            @Argument Long personaId,
+            @Argument String formaPago,
+            @Argument Boolean recurrent,
+            @Argument Boolean pagado,
+            @Argument String fechaVencimiento,
+            @Argument Boolean esCompartido,
+            @Argument Integer cuotaActual,
+            @Argument Integer cuotasTotales) {
+        try {
+            LocalDate parsedDate = (date != null && !date.isEmpty()) ? LocalDate.parse(date) : null;
+            LocalDate parsedVencimiento = (fechaVencimiento != null && !fechaVencimiento.isEmpty()) ? LocalDate.parse(fechaVencimiento) : null;
+            return service.updateGasto(id, amount, categoriaId, parsedDate, description, personaId, formaPago,
+                    recurrent, pagado, parsedVencimiento, esCompartido, cuotaActual, cuotasTotales);
+        } catch (Exception e) {
+            System.err.println("Error en updateGasto: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    @MutationMapping
+    public boolean deleteGasto(@Argument Long id) {
+        try {
+            service.deleteGasto(id);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error en deleteGasto: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @MutationMapping
     public Gasto pagarGasto(
             @Argument Long id,
             @Argument Double monto,
@@ -133,13 +171,15 @@ public class GastoGraphqlController {
     }
 
     @MutationMapping
-    public boolean finalizarMes(@Argument Integer mesActual, @Argument Integer anioActual) {
+    public CierreResult finalizarMes(@Argument Integer mesActual, @Argument Integer anioActual) {
         try {
-            if (mesActual == null || anioActual == null) return false;
+            if (mesActual == null || anioActual == null) {
+                throw new IllegalArgumentException("Mes y anio son obligatorios para cerrar el mes");
+            }
             return cierreService.finalizarMes(mesActual, anioActual);
         } catch (Exception e) {
             System.err.println("Error en finalizarMes: " + e.getMessage());
-            return false;
+            throw new RuntimeException(e);
         }
     }
 
