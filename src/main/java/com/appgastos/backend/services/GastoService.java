@@ -55,7 +55,13 @@ public class GastoService {
         gasto.setPersona(persona);
         gasto.setFormaPago(formaPago);
         gasto.setRecurrent(recurrent != null && recurrent);
-        gasto.setPagado(pagado != null ? pagado : false);
+
+        boolean estaPagado = pagado != null && pagado;
+        gasto.setPagado(estaPagado);
+        // Un gasto que se registra ya pagado se salda en su propia fecha:
+        // sin esto quedaría contando en el balance pero sin fecha de pago.
+        gasto.setFechaPago(estaPagado ? gasto.getDate() : null);
+
         gasto.setFechaVencimiento(fechaVencimiento);
         gasto.setEsCompartido(esCompartido != null && esCompartido);
         gasto.setCuotaActual(cuotaActual);
