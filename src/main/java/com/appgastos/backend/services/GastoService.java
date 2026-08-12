@@ -9,6 +9,7 @@ import com.appgastos.backend.repositories.PagoCompartidoRepository;
 import com.appgastos.backend.models.Persona;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -68,6 +69,59 @@ public class GastoService {
         gasto.setCuotasTotales(cuotasTotales);
 
         return repository.save(gasto);
+    }
+
+    /**
+     * Actualiza un gasto existente.
+     *
+     * Los campos obligatorios del formulario (monto, fecha, categoria, persona, forma de
+     * pago y los flags) conservan su valor anterior si llegan en null. Los opcionales
+     * (descripcion, vencimiento y cuotas) se reemplazan tal cual vienen, para que el
+     * usuario pueda vaciarlos desde la interfaz.
+     */
+    @Transactional
+    public Gasto updateGasto(Long id, Double amount, Long categoriaId, LocalDate date, String description,
+            Long personaId, String formaPago, Boolean recurrent, Boolean pagado, LocalDate fechaVencimiento,
+            Boolean esCompartido, Integer cuotaActual, Integer cuotasTotales) {
+        Gasto gasto = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Gasto no encontrado: " + id));
+
+        if (amount != null) gasto.setAmount(amount);
+        if (date != null) gasto.setDate(date);
+        if (categoriaId != null) categoriaRepository.findById(categoriaId).ifPresent(gasto::setCategoria);
+        if (personaId != null) personaRepository.findById(personaId).ifPresent(gasto::setPersona);
+        if (formaPago != null) gasto.setFormaPago(formaPago);
+        if (recurrent != null) gasto.setRecurrent(recurrent);
+        if (esCompartido != null) gasto.setEsCompartido(esCompartido);
+
+        gasto.setDescription(description);
+        gasto.setFechaVencimiento(fechaVencimiento);
+        gasto.setCuotaActual(cuotaActual);
+        gasto.setCuotasTotales(cuotasTotales);
+
+        if (pagado != null) {
+            boolean estabaPagado = Boolean.TRUE.equals(gasto.getPagado());
+            gasto.setPagado(pagado);
+            // La fecha de pago sigue al flag: si se marca pagado sin tenerla, se salda en
+            // la fecha del gasto; si se vuelve a pendiente, deja de tener sentido.
+            if (pagado && !estabaPagado) {
+                gasto.setFechaPago(gasto.getDate());
+            } else if (!pagado) {
+                gasto.setFechaPago(null);
+            }
+        }
+
+        return repository.save(gasto);
+    }
+
+    @Transactional
+    public void deleteGasto(Long id) {
+        Gasto gasto = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Gasto no encontrado: " + id));
+
+        // Los aportes tienen FK al gasto: se borran primero para no romper la restriccion.
+        pagoCompartidoRepository.deleteAll(pagoCompartidoRepository.findByGastoId(id));
+        repository.delete(gasto);
     }
 
     public LocalDate getLastGastoDate() {
