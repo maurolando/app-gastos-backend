@@ -1,0 +1,40 @@
+# Blueprint de Render. Desde el panel: New > Blueprint, apuntando a este repo.
+#
+# El nombre del servicio determina la URL publica
+# (https://app-gastos-backend.onrender.com), que es la que espera
+# src/environments/environment.ts del frontend. Si Render tuviera que
+# renombrarlo por colision, hay que actualizar ese archivo.
+services:
+  - type: web
+    name: app-gastos-backend
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+
+    # El plan gratuito duerme el servicio tras 15 min sin trafico. La primera
+    # request despues de eso tarda ~50s en levantar el contenedor.
+    healthCheckPath: /actuator/health
+
+    envVars:
+      # sync: false = Render los pide al crear el blueprint y no viajan en el repo.
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        # Render genera un valor aleatorio y lo guarda; no hay que inventarlo.
+        generateValue: true
+      # Dominios del frontend habilitados para llamar a esta API, separados por
+      # coma. Sin esto queda en localhost y el front desplegado se come un 403
+      # de CORS.
+      - key: CORS_ORIGINS
+        sync: false
+      # GraphiQL publica el schema completo; en produccion no hace falta.
+      - key: GRAPHIQL_ENABLED
+        value: "false"
+      # El plan gratuito tiene log acotado y el SQL lo llena en minutos.
+      - key: SHOW_SQL
+        value: "false"
