@@ -59,7 +59,11 @@ public class CierreService {
                 cuotaActual = cuotaActual + 1; // Avanza a la siguiente cuota
             }
 
-            if (yaFueCopiado(g, cuotaActual, gastosDestino)) {
+            int copia = indiceDeCopia(g, cuotaActual, gastosDestino);
+            if (copia >= 0) {
+                // Se consume la copia encontrada: si hay dos fijos identicos en el mes
+                // origen, el segundo no puede darse por copiado mirando la misma fila.
+                gastosDestino.remove(copia);
                 System.out.println("Gasto fijo ya presente en el mes destino, se omite: " + g.getDescription());
                 gastosOmitidos++;
                 continue;
@@ -67,7 +71,7 @@ public class CierreService {
 
             LocalDate nextDate = g.getDate().plusMonths(1);
             LocalDate nextVencimiento = g.getFechaVencimiento() != null ? g.getFechaVencimiento().plusMonths(1) : null;
-            Gasto creado = gastoService.createGasto(
+            gastoService.createGasto(
                     g.getAmount(),
                     g.getCategoria() != null ? g.getCategoria().getId() : null,
                     nextDate,
@@ -81,9 +85,6 @@ public class CierreService {
                     cuotaActual,
                     cuotasTotales
             );
-            // Se suma a la lista destino para que dos fijos identicos del mes origen
-            // no se colapsen entre si: el segundo encontraria al primero ya copiado.
-            gastosDestino.add(creado);
             gastosCopiados++;
         }
 
@@ -95,21 +96,22 @@ public class CierreService {
         System.out.println("Ingresos recurrentes encontrados: " + ingresosRecurrentes.size());
 
         for (Ingreso i : ingresosRecurrentes) {
-            if (yaFueCopiado(i, ingresosDestino)) {
+            int copia = indiceDeCopia(i, ingresosDestino);
+            if (copia >= 0) {
+                ingresosDestino.remove(copia);
                 System.out.println("Ingreso fijo ya presente en el mes destino, se omite.");
                 ingresosOmitidos++;
                 continue;
             }
 
             LocalDate nextDate = i.getFecha().plusMonths(1);
-            Ingreso creado = ingresoService.createIngreso(
+            ingresoService.createIngreso(
                     i.getMonto(),
                     nextDate,
                     i.getCategoria() != null ? i.getCategoria().getId() : null,
                     i.getPersona() != null ? i.getPersona().getId() : null,
                     true
             );
-            ingresosDestino.add(creado);
             ingresosCopiados++;
         }
 
@@ -121,24 +123,42 @@ public class CierreService {
     }
 
     /**
-     * Un gasto fijo ya fue copiado si en el mes destino hay otro equivalente: mismo
-     * monto, descripcion, categoria, persona y numero de cuota. No se compara la fecha
-     * exacta porque el usuario puede haberla corrido a mano despues del cierre.
+     * Indice de la copia de este gasto fijo en el mes destino, o -1 si no esta.
+     *
+     * Equivalente es mismo monto, descripcion, categoria, persona y numero de cuota.
+     * No se compara la fecha exacta porque el usuario puede haberla corrido a mano
+     * despues del cierre.
+     *
+     * Devuelve el indice y no un booleano a proposito: quien llama saca del pool la
+     * fila que consumio, para que N fijos identicos requieran N copias en destino y
+     * no se tapen entre si con una sola.
      */
-    private boolean yaFueCopiado(Gasto origen, Integer cuotaEsperada, List<Gasto> destino) {
-        return destino.stream().anyMatch(d -> Boolean.TRUE.equals(d.getRecurrent())
-                && Objects.equals(d.getAmount(), origen.getAmount())
-                && Objects.equals(d.getDescription(), origen.getDescription())
-                && Objects.equals(categoriaId(d), categoriaId(origen))
-                && Objects.equals(personaId(d), personaId(origen))
-                && Objects.equals(d.getCuotaActual(), cuotaEsperada));
+    private int indiceDeCopia(Gasto origen, Integer cuotaEsperada, List<Gasto> destino) {
+        for (int i = 0; i < destino.size(); i++) {
+            Gasto d = destino.get(i);
+            if (Boolean.TRUE.equals(d.getRecurrent())
+                    && Objects.equals(d.getAmount(), origen.getAmount())
+                    && Objects.equals(d.getDescription(), origen.getDescription())
+                    && Objects.equals(categoriaId(d), categoriaId(origen))
+                    && Objects.equals(personaId(d), personaId(origen))
+                    && Objects.equals(d.getCuotaActual(), cuotaEsperada)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
-    private boolean yaFueCopiado(Ingreso origen, List<Ingreso> destino) {
-        return destino.stream().anyMatch(d -> Boolean.TRUE.equals(d.getRecurrent())
-                && Objects.equals(d.getMonto(), origen.getMonto())
-                && Objects.equals(categoriaId(d), categoriaId(origen))
-                && Objects.equals(personaId(d), personaId(origen)));
+    private int indiceDeCopia(Ingreso origen, List<Ingreso> destino) {
+        for (int i = 0; i < destino.size(); i++) {
+            Ingreso d = destino.get(i);
+            if (Boolean.TRUE.equals(d.getRecurrent())
+                    && Objects.equals(d.getMonto(), origen.getMonto())
+                    && Objects.equals(categoriaId(d), categoriaId(origen))
+                    && Objects.equals(personaId(d), personaId(origen))) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private Long categoriaId(Gasto g) {
