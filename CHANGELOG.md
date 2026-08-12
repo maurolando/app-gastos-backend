@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/maurolando/app-gastos-backend/compare/v1.3.0...v1.3.1) (2026-08-12)
+
+
+### Bug Fixes
+
+* registrar fechaPago cuando el gasto se crea ya pagado ([dd5685f](https://github.com/maurolando/app-gastos-backend/commit/dd5685fafa71cbc02700699c6ffd0c8fe4002495))
+
 ## [1.3.0](https://github.com/maurolando/app-gastos-backend/compare/v1.2.1...v1.3.0) (2026-07-10)
 
 
