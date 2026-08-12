@@ -84,6 +84,13 @@ type Ahorro {
     persona: Persona
 }
 
+type CierreResult {
+    gastosCopiados: Int!
+    ingresosCopiados: Int!
+    gastosOmitidos: Int!
+    ingresosOmitidos: Int!
+}
+
 type Query {
     getAllGastos(mes: Int, anio: Int): [Gasto]!
     getAllPersonas: [Persona]!
@@ -100,12 +107,14 @@ type Query {
 
 type Mutation {
     createGasto(amount: Float!, categoriaId: ID!, date: String!, description: String, personaId: ID!, formaPago: String, recurrent: Boolean, pagado: Boolean, fechaVencimiento: String, esCompartido: Boolean, cuotaActual: Int, cuotasTotales: Int): Gasto!
+    updateGasto(id: ID!, amount: Float, categoriaId: ID, date: String, description: String, personaId: ID, formaPago: String, recurrent: Boolean, pagado: Boolean, fechaVencimiento: String, esCompartido: Boolean, cuotaActual: Int, cuotasTotales: Int): Gasto!
+    deleteGasto(id: ID!): Boolean!
     createPersona(nombre: String!): Persona!
     updatePersona(id: ID!, nombre: String, activo: Boolean): Persona
     createIngreso(monto: Float!, fecha: String!, categoriaId: ID!, personaId: ID!, recurrent: Boolean): Ingreso!
     createAhorro(monto: Float!, fecha: String!, personaId: ID, descripcion: String): Ahorro!
     deleteAhorro(id: ID!): Boolean!
-    finalizarMes(mesActual: Int!, anioActual: Int!): Boolean
+    finalizarMes(mesActual: Int!, anioActual: Int!): CierreResult!
     pagarGasto(id: ID!, monto: Float!, personaId: ID!, formaPago: String!, fechaPago: String!): Gasto!
     reiniciarDatos: Boolean
     createCategoria(nombre: String!, icono: String, tipo: String!): Categoria!
