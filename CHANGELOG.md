@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/maurolando/app-gastos-backend/compare/v1.3.1...v1.4.0) (2026-08-13)
+
+
+### Features
+
+* preparar el backend para desplegar en Render ([4eb2dd0](https://github.com/maurolando/app-gastos-backend/commit/4eb2dd0142eaaba674c74a153c91189018c19d0a))
+
 ## [1.3.1](https://github.com/maurolando/app-gastos-backend/compare/v1.3.0...v1.3.1) (2026-08-12)
 
 
