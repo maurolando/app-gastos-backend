@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>com.appgastos</groupId>
 	<artifactId>backend</artifactId>
-	<version>1.4.0</version>
+	<version>1.4.1-SNAPSHOT</version>
 	<name>backend</name>
 	<description>App Gastos</description>
 	<url/>
