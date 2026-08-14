@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/maurolando/app-gastos-backend/compare/v1.4.0...v1.4.1) (2026-08-14)
+
+
+### Bug Fixes
+
+* no dejar la API sin ningun origen permitido si CORS_ORIGINS viene vacio ([81d7d04](https://github.com/maurolando/app-gastos-backend/commit/81d7d04f3a92e74bc0000e570d014dbf886b9b17))
+
 ## [1.4.0](https://github.com/maurolando/app-gastos-backend/compare/v1.3.1...v1.4.0) (2026-08-13)
 
 
