@@ -14,4 +14,8 @@ public class Categoria {
     private String nombre;
     private String icono; // Nombre del Material Icon (ej: 'restaurant', 'shopping_cart')
     private String tipo;  // 'GASTO' o 'INGRESO'
+
+    // Destino del gasto en la guía de distribución del ingreso. Null = sin clasificar.
+    @Enumerated(EnumType.STRING)
+    private GrupoGasto grupo;
 }
