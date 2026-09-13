@@ -3,6 +3,7 @@ package com.appgastos.backend.controllers;
 import com.appgastos.backend.dto.CierreResult;
 import com.appgastos.backend.models.Categoria;
 import com.appgastos.backend.models.Gasto;
+import com.appgastos.backend.models.GrupoGasto;
 import com.appgastos.backend.models.PagoCompartido;
 import com.appgastos.backend.services.CategoriaService;
 import com.appgastos.backend.services.CierreService;
@@ -194,8 +195,9 @@ public class GastoGraphqlController {
     }
 
     @MutationMapping
-    public Categoria createCategoria(@Argument String nombre, @Argument String icono, @Argument String tipo) {
-        return categoriaService.createCategoria(nombre, icono, tipo);
+    public Categoria createCategoria(@Argument String nombre, @Argument String icono, @Argument String tipo,
+            @Argument GrupoGasto grupo) {
+        return categoriaService.createCategoria(nombre, icono, tipo, grupo);
     }
 
     @MutationMapping
@@ -209,8 +211,9 @@ public class GastoGraphqlController {
     }
 
     @MutationMapping
-    public Categoria updateCategoria(@Argument Long id, @Argument String nombre, @Argument String icono, @Argument String tipo) {
-        return categoriaService.updateCategoria(id, nombre, icono, tipo);
+    public Categoria updateCategoria(@Argument Long id, @Argument String nombre, @Argument String icono,
+            @Argument String tipo, @Argument GrupoGasto grupo) {
+        return categoriaService.updateCategoria(id, nombre, icono, tipo, grupo);
     }
 
     @QueryMapping

@@ -3,6 +3,7 @@ type Categoria {
     nombre: String!
     icono: String
     tipo: String!
+    grupo: GrupoGasto
 }
 
 type Presupuesto {
@@ -91,6 +92,74 @@ type CierreResult {
     ingresosOmitidos: Int!
 }
 
+# --- Guía de distribución del ingreso (50/30/20, 70/20/10, 6 jarras) ---
+
+enum GrupoGasto {
+    NECESIDADES
+    DESEOS
+    EDUCACION
+    AHORRO
+    INVERSION
+    DONACIONES
+}
+
+enum PlantillaRegla {
+    REGLA_70_20_10
+    REGLA_50_30_20
+    SEIS_JARRAS
+    PERSONALIZADA
+}
+
+type PorcentajeGrupo {
+    grupo: GrupoGasto!
+    porcentaje: Float!
+}
+
+input PorcentajeGrupoInput {
+    grupo: GrupoGasto!
+    porcentaje: Float!
+}
+
+type ReglaPresupuesto {
+    plantilla: PlantillaRegla!
+    porcentajes: [PorcentajeGrupo!]!
+}
+
+type PartidaDistribucion {
+    clave: String!
+    nombre: String!
+    porcentaje: Float!
+    grupos: [GrupoGasto!]!
+    montoRecomendado: Float!
+    montoReal: Float!
+    porcentajeReal: Float!
+    esAhorro: Boolean!
+}
+
+type DistribucionRegla {
+    activa: Boolean!
+    plantilla: PlantillaRegla!
+    plantillaSugerida: PlantillaRegla
+    ingresoMensual: Float!
+    partidas: [PartidaDistribucion!]!
+    montoSinClasificar: Float!
+    categoriasSinClasificar: Int!
+}
+
+type PresupuestoSugerido {
+    categoria: Categoria!
+    partida: String!
+    montoSugerido: Float!
+    # Lo gastado en la categoría (el mayor entre el mes anterior y el actual).
+    montoReferencia: Float!
+    montoActual: Float
+}
+
+input PresupuestoInput {
+    categoriaId: ID!
+    monto: Float!
+}
+
 type Query {
     getAllGastos(mes: Int, anio: Int): [Gasto]!
     getAllPersonas: [Persona]!
@@ -103,6 +172,10 @@ type Query {
     getPagosCompartidos(gastoId: ID!): [PagoCompartido]!
     getShoppingList: [Compra]!
     getPresupuestos(mes: Int!, anio: Int!): [Presupuesto]!
+
+    getReglaPresupuesto: ReglaPresupuesto
+    getDistribucionRegla(mes: Int!, anio: Int!): DistribucionRegla!
+    getPresupuestosSugeridos(mes: Int!, anio: Int!): [PresupuestoSugerido!]!
 }
 
 type Mutation {
@@ -117,17 +190,23 @@ type Mutation {
     finalizarMes(mesActual: Int!, anioActual: Int!): CierreResult!
     pagarGasto(id: ID!, monto: Float!, personaId: ID!, formaPago: String!, fechaPago: String!): Gasto!
     reiniciarDatos: Boolean
-    createCategoria(nombre: String!, icono: String, tipo: String!): Categoria!
+    createCategoria(nombre: String!, icono: String, tipo: String!, grupo: GrupoGasto): Categoria!
     deleteCategoria(id: ID!): Boolean!
-    updateCategoria(id: ID!, nombre: String, icono: String, tipo: String): Categoria
+    updateCategoria(id: ID!, nombre: String, icono: String, tipo: String, grupo: GrupoGasto): Categoria
     agregarPagoCompartido(gastoId: ID!, personaId: ID!, monto: Float!, formaPago: String!, fecha: String): PagoCompartido!
     login(nombre: String!, clave: String!): LoginResult
     setClave(id: ID!, clave: String!): Persona
-    
+
     createShoppingItem(nombre: String!, precio: Float, lugar: String): Compra!
     toggleShoppingItemStatus(id: ID!): Compra!
     deleteShoppingItem(id: ID!): Boolean!
-    
+
     setPresupuesto(categoriaId: ID!, monto: Float!, mes: Int!, anio: Int!): Presupuesto!
+
+    # La plantilla personalizada exige porcentajes que sumen 100; las fijas los ignoran.
+    guardarReglaPresupuesto(plantilla: PlantillaRegla!, porcentajes: [PorcentajeGrupoInput!]): ReglaPresupuesto!
+    desactivarReglaPresupuesto: Boolean!
+    # Guarda solo los presupuestos que el usuario confirmó; se aplican todos o ninguno.
+    aplicarPresupuestos(mes: Int!, anio: Int!, presupuestos: [PresupuestoInput!]!): [Presupuesto!]!
 }
 
