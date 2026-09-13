@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/maurolando/app-gastos-backend/compare/v1.4.1...v1.5.0) (2026-09-13)
+
+
+### Features
+
+* guia de distribucion del ingreso (70/20/10, 50/30/20, 6 jarras) ([f1e2fa9](https://github.com/maurolando/app-gastos-backend/commit/f1e2fa9cd29773144695bb473594a8e6c5e7b95b))
+
 ## [1.4.1](https://github.com/maurolando/app-gastos-backend/compare/v1.4.0...v1.4.1) (2026-08-14)
 
 
