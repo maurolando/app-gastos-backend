@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/maurolando/app-gastos-backend/compare/v1.5.0...v1.5.1) (2026-09-20)
+
+
+### Bug Fixes
+
+* quitar los defaults de Supabase y fallar nombrando la variable que falta ([d8c2dbf](https://github.com/maurolando/app-gastos-backend/commit/d8c2dbf324739c5ed036605cc71c0c8e678a77bf))
+
 ## [1.5.0](https://github.com/maurolando/app-gastos-backend/compare/v1.4.1...v1.5.0) (2026-09-13)
 
 
