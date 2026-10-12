@@ -50,6 +50,32 @@ public class IngresoService {
         return ingresoRepository.save(ingreso);
     }
 
+    /**
+     * Edicion parcial: lo que viene en null se deja como estaba. Permite cambiar
+     * un solo campo sin que el cliente tenga que reenviar el ingreso entero.
+     */
+    public Ingreso updateIngreso(Long id, Double monto, LocalDate fecha, Long categoriaId,
+            Long personaId, Boolean recurrent) {
+        Ingreso ingreso = ingresoRepository.findById(id)
+                .orElseThrow(() -> new ValidacionException("El ingreso no existe o ya fue borrado."));
+
+        if (monto != null) ingreso.setMonto(monto);
+        if (fecha != null) ingreso.setFecha(fecha);
+        if (categoriaId != null) categoriaRepository.findById(categoriaId).ifPresent(ingreso::setCategoria);
+        if (personaId != null) personaRepository.findById(personaId).ifPresent(ingreso::setPersona);
+        if (recurrent != null) ingreso.setRecurrent(recurrent);
+
+        return ingresoRepository.save(ingreso);
+    }
+
+    public boolean deleteIngreso(Long id) {
+        Ingreso ingreso = ingresoRepository.findById(id)
+                .orElseThrow(() -> new ValidacionException("El ingreso no existe o ya fue borrado."));
+
+        ingresoRepository.delete(ingreso);
+        return true;
+    }
+
     public LocalDate getLastIngresoDate() {
         return ingresoRepository.findAll().stream()
                 .map(Ingreso::getFecha)

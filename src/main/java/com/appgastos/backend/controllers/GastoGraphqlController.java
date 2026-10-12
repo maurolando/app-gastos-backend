@@ -2,6 +2,7 @@ package com.appgastos.backend.controllers;
 
 import com.appgastos.backend.dto.CierreResult;
 import com.appgastos.backend.models.Categoria;
+import com.appgastos.backend.dto.ResumenCuotas;
 import com.appgastos.backend.models.Gasto;
 import com.appgastos.backend.models.GrupoGasto;
 import com.appgastos.backend.models.PagoCompartido;
@@ -229,5 +230,10 @@ public class GastoGraphqlController {
             @Argument String formaPago,
             @Argument String fecha) {
         return pagoCompartidoService.agregarPago(gastoId, personaId, monto, formaPago, fecha);
+    }
+
+    @QueryMapping
+    public ResumenCuotas getResumenCuotas(@Argument Long gastoId) {
+        return service.getResumenCuotas(gastoId);
     }
 }

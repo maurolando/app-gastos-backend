@@ -44,4 +44,22 @@ public class IngresoGraphqlController {
             throw new RuntimeException(e);
         }
     }
+
+    @MutationMapping
+    public Ingreso updateIngreso(
+            @Argument Long id,
+            @Argument Double monto,
+            @Argument String fecha,
+            @Argument Long categoriaId,
+            @Argument Long personaId,
+            @Argument Boolean recurrent) {
+        // La fecha viaja como String: null significa "no la cambies", no "hoy".
+        LocalDate parsedFecha = fecha != null ? LocalDate.parse(fecha) : null;
+        return ingresoService.updateIngreso(id, monto, parsedFecha, categoriaId, personaId, recurrent);
+    }
+
+    @MutationMapping
+    public boolean deleteIngreso(@Argument Long id) {
+        return ingresoService.deleteIngreso(id);
+    }
 }
