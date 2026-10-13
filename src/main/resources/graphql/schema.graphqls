@@ -176,6 +176,22 @@ type Query {
     getReglaPresupuesto: ReglaPresupuesto
     getDistribucionRegla(mes: Int!, anio: Int!): DistribucionRegla!
     getPresupuestosSugeridos(mes: Int!, anio: Int!): [PresupuestoSugerido!]!
+
+    # Estado de la compra en cuotas a la que pertenece este gasto.
+    getResumenCuotas(gastoId: ID!): ResumenCuotas!
+}
+
+# Las cuotas de una compra son gastos sueltos, uno por mes. Este resumen las
+# junta para responder en que cuota voy, cuanto pague y cuanto falta.
+type ResumenCuotas {
+    cuotaActual: Int!
+    cuotasTotales: Int!
+    montoCuota: Float!
+    totalAPagar: Float!
+    # Suma solo las cuotas marcadas como pagadas, no las que ya vencieron.
+    totalPagado: Float!
+    saldoPendiente: Float!
+    cuotas: [Gasto!]!
 }
 
 type Mutation {
@@ -185,6 +201,9 @@ type Mutation {
     createPersona(nombre: String!): Persona!
     updatePersona(id: ID!, nombre: String, activo: Boolean): Persona
     createIngreso(monto: Float!, fecha: String!, categoriaId: ID!, personaId: ID!, recurrent: Boolean): Ingreso!
+    # Edicion parcial: lo que no se manda se deja como estaba.
+    updateIngreso(id: ID!, monto: Float, fecha: String, categoriaId: ID, personaId: ID, recurrent: Boolean): Ingreso!
+    deleteIngreso(id: ID!): Boolean!
     createAhorro(monto: Float!, fecha: String!, personaId: ID, descripcion: String): Ahorro!
     deleteAhorro(id: ID!): Boolean!
     finalizarMes(mesActual: Int!, anioActual: Int!): CierreResult!

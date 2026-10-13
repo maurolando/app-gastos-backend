@@ -1,6 +1,7 @@
 package com.appgastos.backend.services;
 
 import com.appgastos.backend.models.Categoria;
+import com.appgastos.backend.dto.ResumenCuotas;
 import com.appgastos.backend.models.Gasto;
 import com.appgastos.backend.repositories.CategoriaRepository;
 import com.appgastos.backend.repositories.GastoRepository;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.List;
 
 @Service
@@ -122,6 +124,66 @@ public class GastoService {
         // Los aportes tienen FK al gasto: se borran primero para no romper la restriccion.
         pagoCompartidoRepository.deleteAll(pagoCompartidoRepository.findByGastoId(id));
         repository.delete(gasto);
+    }
+
+    /**
+     * Estado de la compra en cuotas a la que pertenece este gasto.
+     *
+     * Las cuotas de una compra no estan unidas por ningun identificador: cada mes
+     * es una fila suelta que el cierre copia con cuotaActual+1. Se reconocen por
+     * coincidencia de descripcion, categoria, persona y total de cuotas, la misma
+     * regla que usa CierreService para no duplicar una cuota, salvo el monto: dos
+     * cuotas de una misma compra pueden diferir (una entrega mas grande, un ajuste)
+     * y seguir siendo la misma compra.
+     *
+     * El limite de esto es que dos compras identicas en los cuatro campos se
+     * cuentan como una sola. Resolverlo de verdad pide darle identidad propia a la
+     * compra, que es un cambio de esquema.
+     */
+    public ResumenCuotas getResumenCuotas(Long gastoId) {
+        Gasto gasto = repository.findById(gastoId)
+                .orElseThrow(() -> new ValidacionException("El gasto no existe o ya fue borrado."));
+
+        if (gasto.getCuotasTotales() == null || gasto.getCuotaActual() == null) {
+            throw new ValidacionException("Este gasto no esta dividido en cuotas.");
+        }
+
+        List<Gasto> cuotas = repository.findAll().stream()
+                .filter(g -> esDeLaMismaCompra(g, gasto))
+                .sorted(Comparator.comparing(Gasto::getCuotaActual,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
+
+        double montoCuota = gasto.getAmount() != null ? gasto.getAmount() : 0.0;
+        double totalAPagar = montoCuota * gasto.getCuotasTotales();
+        double totalPagado = cuotas.stream()
+                .filter(g -> Boolean.TRUE.equals(g.getPagado()))
+                .mapToDouble(g -> g.getAmount() != null ? g.getAmount() : 0.0)
+                .sum();
+
+        return new ResumenCuotas(
+                gasto.getCuotaActual(),
+                gasto.getCuotasTotales(),
+                montoCuota,
+                totalAPagar,
+                totalPagado,
+                totalAPagar - totalPagado,
+                cuotas);
+    }
+
+    private boolean esDeLaMismaCompra(Gasto candidato, Gasto referencia) {
+        return Objects.equals(candidato.getCuotasTotales(), referencia.getCuotasTotales())
+                && Objects.equals(candidato.getDescription(), referencia.getDescription())
+                && Objects.equals(idDeCategoria(candidato), idDeCategoria(referencia))
+                && Objects.equals(idDePersona(candidato), idDePersona(referencia));
+    }
+
+    private Long idDeCategoria(Gasto g) {
+        return g.getCategoria() != null ? g.getCategoria().getId() : null;
+    }
+
+    private Long idDePersona(Gasto g) {
+        return g.getPersona() != null ? g.getPersona().getId() : null;
     }
 
     public LocalDate getLastGastoDate() {
