@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/maurolando/app-gastos-backend/compare/v1.5.1...v1.6.0) (2026-10-14)
+
+
+### Features
+
+* editar y borrar ingresos, y resumen de una compra en cuotas ([dbd7eee](https://github.com/maurolando/app-gastos-backend/commit/dbd7eee4f80f0005381b20bb2801f7bce77399a3))
+
 ## [1.5.1](https://github.com/maurolando/app-gastos-backend/compare/v1.5.0...v1.5.1) (2026-09-20)
 
 
