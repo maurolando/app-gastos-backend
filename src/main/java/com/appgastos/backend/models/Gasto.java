@@ -35,4 +35,10 @@ public class Gasto {
 
     @OneToMany(mappedBy = "gasto", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<PagoCompartido> pagosCompartidos;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hogar_id")
+    @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
+    private Hogar hogar;
 }

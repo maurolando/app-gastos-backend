@@ -1,5 +1,7 @@
 package com.appgastos.backend.services;
 
+import com.appgastos.backend.config.HogarActual;
+import com.appgastos.backend.models.Hogar;
 import com.appgastos.backend.models.Categoria;
 import com.appgastos.backend.dto.ResumenCuotas;
 import com.appgastos.backend.models.Gasto;
@@ -26,7 +28,7 @@ public class GastoService {
     private final PagoCompartidoRepository pagoCompartidoRepository;
 
     public List<Gasto> findAll(Integer mes, Integer anio) {
-        List<Gasto> all = repository.findAll();
+        List<Gasto> all = repository.findByHogar(HogarActual.get());
         if (mes == null && anio == null)
             return all;
 
@@ -47,8 +49,8 @@ public class GastoService {
     public Gasto createGasto(Double amount, Long categoriaId, LocalDate date, String description, Long personaId,
             String formaPago, Boolean recurrent, Boolean pagado, LocalDate fechaVencimiento, Boolean esCompartido,
             Integer cuotaActual, Integer cuotasTotales) {
-        Persona persona = personaId != null ? personaRepository.findById(personaId).orElse(null) : null;
-        Categoria categoria = categoriaId != null ? categoriaRepository.findById(categoriaId).orElse(null) : null;
+        Persona persona = personaId != null ? personaRepository.findByIdAndHogar(personaId, HogarActual.get()).orElse(null) : null;
+        Categoria categoria = categoriaId != null ? categoriaRepository.findByIdAndHogar(categoriaId, HogarActual.get()).orElse(null) : null;
 
         Gasto gasto = new Gasto();
         gasto.setAmount(amount);
@@ -69,6 +71,7 @@ public class GastoService {
         gasto.setEsCompartido(esCompartido != null && esCompartido);
         gasto.setCuotaActual(cuotaActual);
         gasto.setCuotasTotales(cuotasTotales);
+        gasto.setHogar(HogarActual.get());
 
         return repository.save(gasto);
     }
@@ -85,13 +88,13 @@ public class GastoService {
     public Gasto updateGasto(Long id, Double amount, Long categoriaId, LocalDate date, String description,
             Long personaId, String formaPago, Boolean recurrent, Boolean pagado, LocalDate fechaVencimiento,
             Boolean esCompartido, Integer cuotaActual, Integer cuotasTotales) {
-        Gasto gasto = repository.findById(id)
+        Gasto gasto = repository.findByIdAndHogar(id, HogarActual.get())
                 .orElseThrow(() -> new RuntimeException("Gasto no encontrado: " + id));
 
         if (amount != null) gasto.setAmount(amount);
         if (date != null) gasto.setDate(date);
-        if (categoriaId != null) categoriaRepository.findById(categoriaId).ifPresent(gasto::setCategoria);
-        if (personaId != null) personaRepository.findById(personaId).ifPresent(gasto::setPersona);
+        if (categoriaId != null) categoriaRepository.findByIdAndHogar(categoriaId, HogarActual.get()).ifPresent(gasto::setCategoria);
+        if (personaId != null) personaRepository.findByIdAndHogar(personaId, HogarActual.get()).ifPresent(gasto::setPersona);
         if (formaPago != null) gasto.setFormaPago(formaPago);
         if (recurrent != null) gasto.setRecurrent(recurrent);
         if (esCompartido != null) gasto.setEsCompartido(esCompartido);
@@ -118,7 +121,7 @@ public class GastoService {
 
     @Transactional
     public void deleteGasto(Long id) {
-        Gasto gasto = repository.findById(id)
+        Gasto gasto = repository.findByIdAndHogar(id, HogarActual.get())
                 .orElseThrow(() -> new RuntimeException("Gasto no encontrado: " + id));
 
         // Los aportes tienen FK al gasto: se borran primero para no romper la restriccion.
@@ -141,14 +144,14 @@ public class GastoService {
      * compra, que es un cambio de esquema.
      */
     public ResumenCuotas getResumenCuotas(Long gastoId) {
-        Gasto gasto = repository.findById(gastoId)
+        Gasto gasto = repository.findByIdAndHogar(gastoId, HogarActual.get())
                 .orElseThrow(() -> new ValidacionException("El gasto no existe o ya fue borrado."));
 
         if (gasto.getCuotasTotales() == null || gasto.getCuotaActual() == null) {
             throw new ValidacionException("Este gasto no esta dividido en cuotas.");
         }
 
-        List<Gasto> cuotas = repository.findAll().stream()
+        List<Gasto> cuotas = repository.findByHogar(HogarActual.get()).stream()
                 .filter(g -> esDeLaMismaCompra(g, gasto))
                 .sorted(Comparator.comparing(Gasto::getCuotaActual,
                         Comparator.nullsLast(Comparator.naturalOrder())))
@@ -187,7 +190,7 @@ public class GastoService {
     }
 
     public LocalDate getLastGastoDate() {
-        return repository.findAll().stream()
+        return repository.findByHogar(HogarActual.get()).stream()
                 .map(Gasto::getDate)
                 .filter(d -> d != null)
                 .max(Comparator.naturalOrder())
@@ -195,8 +198,8 @@ public class GastoService {
     }
 
     public Gasto markAsPaid(Long id, Double monto, Long personaId, String formaPago, LocalDate fechaPago) {
-        Gasto gasto = repository.findById(id).orElseThrow(() -> new RuntimeException("Gasto no encontrado"));
-        Persona persona = personaId != null ? personaRepository.findById(personaId).orElse(null) : null;
+        Gasto gasto = repository.findByIdAndHogar(id, HogarActual.get()).orElseThrow(() -> new RuntimeException("Gasto no encontrado"));
+        Persona persona = personaId != null ? personaRepository.findByIdAndHogar(personaId, HogarActual.get()).orElse(null) : null;
 
         // NO modificamos el monto original, solo registramos quién pagó y cuándo
         gasto.setPersona(persona);
@@ -208,8 +211,9 @@ public class GastoService {
     }
 
     public void deleteAll() {
-        pagoCompartidoRepository.deleteAll(); // Borrar dependencias primero para no romper FK
-        repository.deleteAll();
+        Hogar hogar = HogarActual.get();
+        pagoCompartidoRepository.deleteByGastoHogar(hogar); // Borrar dependencias primero para no romper FK
+        repository.deleteAll(repository.findByHogar(hogar));
     }
 
     public Double getTotalGastos(Integer mes, Integer anio) {

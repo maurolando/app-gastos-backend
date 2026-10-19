@@ -48,6 +48,12 @@ public class PersonaGraphqlController {
     }
 
     @MutationMapping
+    public LoginResult registrar(@Argument String nombre, @Argument String clave) {
+        Persona persona = service.registrar(nombre, clave);
+        return new LoginResult(jwtService.generateToken(persona), persona);
+    }
+
+    @MutationMapping
     @PreAuthorize("isAuthenticated()")
     public Persona setClave(@Argument Long id, @Argument String clave) {
         return service.setClave(id, clave);

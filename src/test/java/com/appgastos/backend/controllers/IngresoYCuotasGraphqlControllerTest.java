@@ -1,5 +1,8 @@
 package com.appgastos.backend.controllers;
 
+import com.appgastos.backend.SesionDePrueba;
+import com.appgastos.backend.models.Hogar;
+import com.appgastos.backend.repositories.HogarRepository;
 import com.appgastos.backend.models.Categoria;
 import com.appgastos.backend.models.Gasto;
 import com.appgastos.backend.models.Ingreso;
@@ -17,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.graphql.ExecutionGraphQlService;
 import org.springframework.graphql.test.tester.ExecutionGraphQlServiceTester;
 import org.springframework.graphql.test.tester.GraphQlTester;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
@@ -29,7 +31,6 @@ import java.time.LocalDate;
  */
 @SpringBootTest
 @ActiveProfiles("test")
-@WithMockUser
 class IngresoYCuotasGraphqlControllerTest {
 
     private static final String DESCRIPCION = "Heladera de prueba GraphQL";
@@ -39,6 +40,9 @@ class IngresoYCuotasGraphqlControllerTest {
     @Autowired private GastoRepository gastoRepository;
     @Autowired private PersonaRepository personaRepository;
     @Autowired private CategoriaRepository categoriaRepository;
+    @Autowired private HogarRepository hogarRepository;
+
+    private Hogar hogar;
 
     private GraphQlTester tester;
     private Persona persona;
@@ -46,14 +50,19 @@ class IngresoYCuotasGraphqlControllerTest {
 
     @BeforeEach
     void setUp() {
+        hogar = SesionDePrueba.iniciar(hogarRepository, personaRepository);
         tester = ExecutionGraphQlServiceTester.create(graphQlService);
         limpiar();
 
         Persona p = new Persona();
+
+        p.setHogar(hogar);
         p.setNombre("Persona de prueba GraphQL");
         persona = personaRepository.save(p);
 
         Categoria c = new Categoria();
+
+        c.setHogar(hogar);
         c.setNombre("Categoria de prueba GraphQL");
         c.setTipo("GASTO");
         categoria = categoriaRepository.save(c);
@@ -73,6 +82,7 @@ class IngresoYCuotasGraphqlControllerTest {
 
     private Ingreso nuevoIngreso() {
         Ingreso i = new Ingreso();
+        i.setHogar(hogar);
         i.setMonto(5_000_000.0);
         i.setFecha(LocalDate.of(2026, 10, 3));
         i.setCategoria(categoria);
@@ -83,6 +93,7 @@ class IngresoYCuotasGraphqlControllerTest {
 
     private Gasto nuevaCuota(int numero, boolean pagada) {
         Gasto g = new Gasto();
+        g.setHogar(hogar);
         g.setAmount(450_000.0);
         g.setDescription(DESCRIPCION);
         g.setDate(LocalDate.of(2026, 8, 5).plusMonths(numero - 1L));
@@ -150,6 +161,7 @@ class IngresoYCuotasGraphqlControllerTest {
     @DisplayName("pedir el resumen de un gasto sin cuotas llega al cliente con su mensaje")
     void resumenDeGastoSinCuotas() {
         Gasto suelto = new Gasto();
+        suelto.setHogar(hogar);
         suelto.setAmount(900_000.0);
         suelto.setDescription(DESCRIPCION);
         suelto.setDate(LocalDate.of(2026, 10, 8));

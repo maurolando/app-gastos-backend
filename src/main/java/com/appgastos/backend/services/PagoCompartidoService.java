@@ -1,5 +1,6 @@
 package com.appgastos.backend.services;
 
+import com.appgastos.backend.config.HogarActual;
 import com.appgastos.backend.models.Gasto;
 import com.appgastos.backend.models.PagoCompartido;
 import com.appgastos.backend.models.Persona;
@@ -22,14 +23,16 @@ public class PagoCompartidoService {
     private final PersonaRepository personaRepository;
 
     public List<PagoCompartido> getPagosPorGasto(Long gastoId) {
-        return pagoCompartidoRepository.findByGastoId(gastoId);
+        return gastoRepository.findByIdAndHogar(gastoId, HogarActual.get())
+                .map(g -> pagoCompartidoRepository.findByGastoId(gastoId))
+                .orElse(List.of());
     }
 
     @Transactional
     public PagoCompartido agregarPago(Long gastoId, Long personaId, Double monto, String formaPago, String fecha) {
-        Gasto gasto = gastoRepository.findById(gastoId)
+        Gasto gasto = gastoRepository.findByIdAndHogar(gastoId, HogarActual.get())
                 .orElseThrow(() -> new RuntimeException("Gasto no encontrado: " + gastoId));
-        Persona persona = personaRepository.findById(personaId)
+        Persona persona = personaRepository.findByIdAndHogar(personaId, HogarActual.get())
                 .orElseThrow(() -> new RuntimeException("Persona no encontrada: " + personaId));
 
         PagoCompartido pago = new PagoCompartido();

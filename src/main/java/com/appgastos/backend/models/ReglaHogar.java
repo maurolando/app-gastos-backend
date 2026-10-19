@@ -7,8 +7,8 @@ import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * La regla de distribución que eligió el hogar. Hay como mucho una fila: todo
- * en la app es compartido y no hay datos por persona. Si no existe, la guía
+ * La regla de distribución que eligió el hogar. Hay como mucho una fila por
+ * hogar: dentro de un hogar todo es compartido y no hay datos por persona. Si no existe, la guía
  * está desactivada y solo se muestra como sugerencia.
  */
 @Entity
@@ -34,4 +34,10 @@ public class ReglaHogar {
     @MapKeyColumn(name = "grupo")
     @Column(name = "porcentaje")
     private Map<GrupoGasto, Double> porcentajes = new EnumMap<>(GrupoGasto.class);
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hogar_id")
+    @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
+    private Hogar hogar;
 }

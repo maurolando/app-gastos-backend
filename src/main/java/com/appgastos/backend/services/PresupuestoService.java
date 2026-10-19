@@ -1,5 +1,6 @@
 package com.appgastos.backend.services;
 
+import com.appgastos.backend.config.HogarActual;
 import com.appgastos.backend.models.Categoria;
 import com.appgastos.backend.models.Presupuesto;
 import com.appgastos.backend.repositories.CategoriaRepository;
@@ -20,14 +21,14 @@ public class PresupuestoService {
     private CategoriaRepository categoriaRepository;
 
     public List<Presupuesto> getPresupuestos(Integer mes, Integer anio) {
-        return presupuestoRepository.findByMesAndAnio(mes, anio);
+        return presupuestoRepository.findByHogarAndMesAndAnio(HogarActual.get(), mes, anio);
     }
 
     public Presupuesto setPresupuesto(Long categoriaId, Double monto, Integer mes, Integer anio) {
-        Categoria categoria = categoriaRepository.findById(categoriaId)
+        Categoria categoria = categoriaRepository.findByIdAndHogar(categoriaId, HogarActual.get())
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada con id: " + categoriaId));
 
-        Optional<Presupuesto> existing = presupuestoRepository.findByCategoriaIdAndMesAndAnio(categoriaId, mes, anio);
+        Optional<Presupuesto> existing = presupuestoRepository.findByHogarAndCategoriaIdAndMesAndAnio(HogarActual.get(), categoriaId, mes, anio);
         
         Presupuesto presupuesto;
         if (existing.isPresent()) {
@@ -39,6 +40,7 @@ public class PresupuestoService {
             presupuesto.setMonto(monto);
             presupuesto.setMes(mes);
             presupuesto.setAnio(anio);
+            presupuesto.setHogar(HogarActual.get());
         }
         
         return presupuestoRepository.save(presupuesto);
