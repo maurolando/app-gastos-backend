@@ -1,5 +1,8 @@
 package com.appgastos.backend.services;
 
+import com.appgastos.backend.SesionDePrueba;
+import com.appgastos.backend.models.Hogar;
+import com.appgastos.backend.repositories.HogarRepository;
 import com.appgastos.backend.dto.CierreResult;
 import com.appgastos.backend.models.Categoria;
 import com.appgastos.backend.models.Gasto;
@@ -38,21 +41,29 @@ class CierreServiceTest {
     @Autowired private IngresoService ingresoService;
     @Autowired private CategoriaRepository categoriaRepository;
     @Autowired private PersonaRepository personaRepository;
+    @Autowired private HogarRepository hogarRepository;
+
+    private Hogar hogar;
 
     private Long categoriaId;
     private Long personaId;
 
     @BeforeEach
     void setUp() {
+        hogar = SesionDePrueba.iniciar(hogarRepository, personaRepository);
         gastoService.deleteAll();
         ingresoService.deleteAll();
 
         Categoria categoria = new Categoria();
+
+        categoria.setHogar(hogar);
         categoria.setNombre("Alquiler");
         categoria.setTipo("GASTO");
         categoriaId = categoriaRepository.save(categoria).getId();
 
         Persona persona = new Persona();
+
+        persona.setHogar(hogar);
         persona.setNombre("Mauro");
         personaId = personaRepository.save(persona).getId();
     }

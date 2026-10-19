@@ -24,4 +24,10 @@ public class Presupuesto {
 
     @Column(nullable = false)
     private Integer anio;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hogar_id")
+    @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
+    private Hogar hogar;
 }

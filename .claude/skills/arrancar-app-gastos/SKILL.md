@@ -6,7 +6,7 @@ description: Use when running, starting or smoke-testing app-gastos locally — 
 # Arrancar app-gastos en local
 
 Levanta el backend (Spring Boot, `:8080`) contra **H2 en memoria** y el frontend
-(Angular, `:4200`), con personas sembradas para poder entrar.
+(Angular, `:4200`). Para entrar se crea una cuenta desde el login.
 
 **Regla que no se negocia:** el `application.properties` por defecto apunta al
 **Supabase de producción con `ddl-auto=update`**. Arrancar sin forzar H2 modifica
@@ -38,9 +38,6 @@ DB_USERNAME=sa DB_PASSWORD= \
 SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver \
 SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.H2Dialect \
 SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop \
-SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION=true \
-SPRING_SQL_INIT_MODE=always \
-SPRING_SQL_INIT_DATA_LOCATIONS="file:$PWD/.claude/skills/arrancar-app-gastos/seed-personas.sql" \
 JWT_SECRET=clave-de-firma-solo-para-local-no-usar-en-produccion \
 SHOW_SQL=false \
 nohup sh ./mvnw spring-boot:run -Dspring-boot.run.useTestClasspath=true > /tmp/backend.log 2>&1 &
@@ -55,24 +52,19 @@ until grep -qE "Started BackendApplication|APPLICATION FAILED TO START|BUILD FAI
 
 `JWT_SECRET` es obligatorio (HS384 exige ≥ 32 caracteres) o el contexto no levanta.
 
-## 2. El seed de personas y el login
+## 2. Crear una cuenta
 
-`seed-personas.sql` (en esta carpeta) inserta a **Mauro** y **Alexis**, y el
-`DataInitializer` les asigna la clave **`123`** al arrancar.
-
-**Por qué por SQL y no por GraphQL:** la mutation `createPersona` exige estar
-autenticado, y sin ninguna persona en la base no hay con qué autenticarse. El
-huevo y la gallina se rompen sembrando antes de que arranque la app.
-
-`SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION=true` **no es opcional**: sin eso el
-`INSERT` corre antes de que Hibernate cree las tablas y falla con "table not found".
-
-Comprobalo:
+La base arranca vacía. Cada cuenta es un **hogar** aislado (sus personas, gastos,
+categorías, etc.), y se crea sin estar logueado con la mutation `registrar`, así
+que no hace falta sembrar nada:
 
 ```bash
 curl -s localhost:8080/graphql -H 'Content-Type: application/json' \
-  -d '{"query":"mutation{ login(nombre:\"Mauro\", clave:\"123\"){ token persona{ id nombre } } }"}'
+  -d '{"query":"mutation{ registrar(nombre:\"Mauro\", clave:\"secreta1\"){ token persona{ id nombre } } }"}'
 ```
+
+La clave pide al menos 6 caracteres y el nombre es único entre todos los hogares
+(el login es solo por nombre). Desde la UI es el botón "¿No tenés cuenta? Creá una".
 
 La base es **en memoria**: todo lo que cargues se pierde al reiniciar.
 
@@ -84,7 +76,7 @@ cd ../app-gastos-frontend && export PATH="$HOME/.nvm/versions/node/v22.23.2/bin:
 ```
 
 La config de desarrollo ya apunta a `localhost:8080`. Listo cuando el log dice
-`Compiled successfully`. Abrir **http://localhost:4200**, usuario `MAURO`, clave `123`.
+`Compiled successfully`. Abrir **http://localhost:4200** y crear una cuenta, o entrar con la creada por curl.
 
 ## 4. Recorrido en navegador
 
@@ -99,8 +91,9 @@ mkdir -p ~/.cache/app-gastos-pw && cd ~/.cache/app-gastos-pw && \
   PLAYWRIGHT_BROWSERS_PATH=$PWD/browsers npx playwright install chromium
 ```
 
-`recorrer.js` (en esta carpeta) entra con Mauro/123, saca `shot-login.png` y
-`shot-dashboard.png`, e imprime los errores de consola. Correlo desde ahí para
+`recorrer.js` (en esta carpeta) crea una cuenta desde el login, sale y crea otra
+(que tiene que arrancar vacía), saca `shot-registro.png`, `shot-dashboard.png` y
+`shot-dashboard-otra.png`, e imprime los errores de consola. Correlo desde ahí para
 que encuentre el `node_modules`:
 
 ```bash
@@ -122,7 +115,9 @@ pkill -f "[s]pring-boot:run"; pkill -f BackendApplication; pkill -f "[n]g serve"
 ```
 
 Los corchetes no son adorno: `pkill -f "ng serve"` **se mata a sí mismo**, porque
-la línea de comando del propio shell que lo ejecuta contiene el patrón. El shell
+la línea de comando del propio shell que lo ejecuta contiene el patrón. Por lo
+mismo, el `pkill` va en su propio comando: si en la misma llamada aparece después
+`spring-boot:run` escrito tal cual, `[s]pring-boot:run` casa con el shell y lo mata. El shell
 muere antes de terminar y el `ng serve` de verdad queda vivo. Con `[n]g` el
 patrón sigue casando con el proceso real pero ya no con el comando que lo busca.
 
@@ -133,8 +128,7 @@ Si aun así el puerto sigue ocupado: `fuser -k 4200/tcp`.
 | Síntoma | Causa |
 |---|---|
 | `url=jdbc:postgresql://...` en el log | Faltó alguna variable: **estás tocando producción**. Matalo. |
-| `Table "PERSONAS" not found` al sembrar | Falta `SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION=true`. |
-| `No autenticado` en cualquier mutation | La base arrancó sin personas; revisá que el seed se haya aplicado. |
+| `No autenticado` en cualquier mutation | Falta el token: creá una cuenta con `registrar` o hacé `login`. |
 | `release version 17 not supported` | Está el JDK headless sin `javac`. Hace falta `java-25-openjdk-devel`. |
 | `Permission denied: ./mvnw` | Usar `sh ./mvnw`. |
 | `npm: command not found` | Faltó el export del PATH de nvm en **esa misma** línea. |

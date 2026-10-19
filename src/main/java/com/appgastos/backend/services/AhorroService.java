@@ -1,5 +1,6 @@
 package com.appgastos.backend.services;
 
+import com.appgastos.backend.config.HogarActual;
 import com.appgastos.backend.models.Ahorro;
 import com.appgastos.backend.models.Persona;
 import com.appgastos.backend.repositories.AhorroRepository;
@@ -18,7 +19,7 @@ public class AhorroService {
     private final PersonaRepository personaRepository;
 
     public List<Ahorro> getAllAhorros(Integer mes, Integer anio) {
-        List<Ahorro> all = ahorroRepository.findAll();
+        List<Ahorro> all = ahorroRepository.findByHogar(HogarActual.get());
         if (mes == null && anio == null) return all;
         
         return all.stream()
@@ -33,19 +34,20 @@ public class AhorroService {
     }
 
     public Ahorro createAhorro(Double monto, LocalDate fecha, Long personaId, String descripcion) {
-        Persona persona = personaId != null ? personaRepository.findById(personaId).orElse(null) : null;
+        Persona persona = personaId != null ? personaRepository.findByIdAndHogar(personaId, HogarActual.get()).orElse(null) : null;
 
         Ahorro ahorro = new Ahorro();
         ahorro.setMonto(monto);
         ahorro.setFecha(fecha != null ? fecha : LocalDate.now());
         ahorro.setPersona(persona);
         ahorro.setDescripcion(descripcion);
+        ahorro.setHogar(HogarActual.get());
 
         return ahorroRepository.save(ahorro);
     }
 
     public void deleteAhorro(Long id) {
-        ahorroRepository.deleteById(id);
+        ahorroRepository.findByIdAndHogar(id, HogarActual.get()).ifPresent(ahorroRepository::delete);
     }
 
     public Double getTotalAhorros(Integer mes, Integer anio) {
@@ -55,6 +57,6 @@ public class AhorroService {
     }
 
     public void deleteAll() {
-        ahorroRepository.deleteAll();
+        ahorroRepository.deleteByHogar(HogarActual.get());
     }
 }

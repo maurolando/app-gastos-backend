@@ -1,6 +1,11 @@
 package com.appgastos.backend.services;
 
+import com.appgastos.backend.SesionDePrueba;
+import com.appgastos.backend.models.Hogar;
+import com.appgastos.backend.repositories.HogarRepository;
+import com.appgastos.backend.repositories.PersonaRepository;
 import com.appgastos.backend.models.Categoria;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +23,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CategoriaServiceTest {
 
     @Autowired private CategoriaService service;
+    @Autowired private HogarRepository hogarRepository;
+    @Autowired private PersonaRepository personaRepository;
+
+    private Hogar hogar;
+
+    @BeforeEach
+    void iniciarSesion() {
+        hogar = SesionDePrueba.iniciar(hogarRepository, personaRepository);
+    }
 
     @Test
     @DisplayName("una categoria de ingreso nunca queda clasificada en un grupo de gasto")

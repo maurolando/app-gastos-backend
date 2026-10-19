@@ -1,5 +1,9 @@
 package com.appgastos.backend.services;
 
+import com.appgastos.backend.SesionDePrueba;
+import com.appgastos.backend.models.Hogar;
+import com.appgastos.backend.repositories.HogarRepository;
+import com.appgastos.backend.repositories.PersonaRepository;
 import com.appgastos.backend.dto.DistribucionRegla;
 import com.appgastos.backend.dto.PartidaDistribucion;
 import com.appgastos.backend.dto.PorcentajeGrupo;
@@ -52,9 +56,14 @@ class ReglaPresupuestoServiceTest {
     @Autowired private CategoriaRepository categoriaRepository;
     @Autowired private PresupuestoRepository presupuestoRepository;
     @Autowired private ReglaHogarRepository reglaRepository;
+    @Autowired private HogarRepository hogarRepository;
+    @Autowired private PersonaRepository personaRepository;
+
+    private Hogar hogar;
 
     @BeforeEach
     void setUp() {
+        hogar = SesionDePrueba.iniciar(hogarRepository, personaRepository);
         gastoService.deleteAll();
         ingresoService.deleteAll();
         ahorroService.deleteAll();
@@ -302,6 +311,7 @@ class ReglaPresupuestoServiceTest {
 
     private Categoria categoria(String nombre, GrupoGasto grupo) {
         Categoria categoria = new Categoria();
+        categoria.setHogar(hogar);
         categoria.setNombre(nombre);
         categoria.setTipo("GASTO");
         categoria.setGrupo(grupo);

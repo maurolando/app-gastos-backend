@@ -1,5 +1,6 @@
 package com.appgastos.backend.services;
 
+import com.appgastos.backend.config.HogarActual;
 import com.appgastos.backend.models.Categoria;
 import com.appgastos.backend.models.Ingreso;
 import com.appgastos.backend.models.Persona;
@@ -22,7 +23,7 @@ public class IngresoService {
     private final CategoriaRepository categoriaRepository;
 
     public List<Ingreso> getAllIngresos(Integer mes, Integer anio) {
-        List<Ingreso> all = ingresoRepository.findAll();
+        List<Ingreso> all = ingresoRepository.findByHogar(HogarActual.get());
         if (mes == null && anio == null) return all;
         
         return all.stream()
@@ -37,8 +38,8 @@ public class IngresoService {
     }
 
     public Ingreso createIngreso(Double monto, LocalDate fecha, Long categoriaId, Long personaId, Boolean recurrent) {
-        Persona persona = personaId != null ? personaRepository.findById(personaId).orElse(null) : null;
-        Categoria categoria = categoriaId != null ? categoriaRepository.findById(categoriaId).orElse(null) : null;
+        Persona persona = personaId != null ? personaRepository.findByIdAndHogar(personaId, HogarActual.get()).orElse(null) : null;
+        Categoria categoria = categoriaId != null ? categoriaRepository.findByIdAndHogar(categoriaId, HogarActual.get()).orElse(null) : null;
 
         Ingreso ingreso = new Ingreso();
         ingreso.setMonto(monto);
@@ -46,6 +47,7 @@ public class IngresoService {
         ingreso.setCategoria(categoria);
         ingreso.setPersona(persona);
         ingreso.setRecurrent(recurrent != null && recurrent);
+        ingreso.setHogar(HogarActual.get());
 
         return ingresoRepository.save(ingreso);
     }
@@ -56,20 +58,20 @@ public class IngresoService {
      */
     public Ingreso updateIngreso(Long id, Double monto, LocalDate fecha, Long categoriaId,
             Long personaId, Boolean recurrent) {
-        Ingreso ingreso = ingresoRepository.findById(id)
+        Ingreso ingreso = ingresoRepository.findByIdAndHogar(id, HogarActual.get())
                 .orElseThrow(() -> new ValidacionException("El ingreso no existe o ya fue borrado."));
 
         if (monto != null) ingreso.setMonto(monto);
         if (fecha != null) ingreso.setFecha(fecha);
-        if (categoriaId != null) categoriaRepository.findById(categoriaId).ifPresent(ingreso::setCategoria);
-        if (personaId != null) personaRepository.findById(personaId).ifPresent(ingreso::setPersona);
+        if (categoriaId != null) categoriaRepository.findByIdAndHogar(categoriaId, HogarActual.get()).ifPresent(ingreso::setCategoria);
+        if (personaId != null) personaRepository.findByIdAndHogar(personaId, HogarActual.get()).ifPresent(ingreso::setPersona);
         if (recurrent != null) ingreso.setRecurrent(recurrent);
 
         return ingresoRepository.save(ingreso);
     }
 
     public boolean deleteIngreso(Long id) {
-        Ingreso ingreso = ingresoRepository.findById(id)
+        Ingreso ingreso = ingresoRepository.findByIdAndHogar(id, HogarActual.get())
                 .orElseThrow(() -> new ValidacionException("El ingreso no existe o ya fue borrado."));
 
         ingresoRepository.delete(ingreso);
@@ -77,7 +79,7 @@ public class IngresoService {
     }
 
     public LocalDate getLastIngresoDate() {
-        return ingresoRepository.findAll().stream()
+        return ingresoRepository.findByHogar(HogarActual.get()).stream()
                 .map(Ingreso::getFecha)
                 .filter(d -> d != null)
                 .max(Comparator.naturalOrder())
@@ -90,6 +92,6 @@ public class IngresoService {
                 .sum();
     }
     public void deleteAll() {
-        ingresoRepository.deleteAll();
+        ingresoRepository.deleteByHogar(HogarActual.get());
     }
 }

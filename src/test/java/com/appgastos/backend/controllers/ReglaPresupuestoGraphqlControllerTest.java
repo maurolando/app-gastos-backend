@@ -1,5 +1,9 @@
 package com.appgastos.backend.controllers;
 
+import com.appgastos.backend.SesionDePrueba;
+import com.appgastos.backend.models.Hogar;
+import com.appgastos.backend.repositories.HogarRepository;
+import com.appgastos.backend.repositories.PersonaRepository;
 import com.appgastos.backend.repositories.CategoriaRepository;
 import com.appgastos.backend.repositories.ReglaHogarRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -11,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.graphql.ExecutionGraphQlService;
 import org.springframework.graphql.test.tester.ExecutionGraphQlServiceTester;
 import org.springframework.graphql.test.tester.GraphQlTester;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
@@ -21,7 +24,6 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @SpringBootTest
 @ActiveProfiles("test")
-@WithMockUser
 class ReglaPresupuestoGraphqlControllerTest {
 
     private static final String CATEGORIA_DE_PRUEBA = "Categoria de prueba GraphQL";
@@ -29,11 +31,16 @@ class ReglaPresupuestoGraphqlControllerTest {
     @Autowired private ExecutionGraphQlService graphQlService;
     @Autowired private ReglaHogarRepository reglaRepository;
     @Autowired private CategoriaRepository categoriaRepository;
+    @Autowired private HogarRepository hogarRepository;
+    @Autowired private PersonaRepository personaRepository;
+
+    private Hogar hogar;
 
     private GraphQlTester tester;
 
     @BeforeEach
     void setUp() {
+        hogar = SesionDePrueba.iniciar(hogarRepository, personaRepository);
         tester = ExecutionGraphQlServiceTester.create(graphQlService);
         reglaRepository.deleteAll();
     }

@@ -1,5 +1,6 @@
 package com.appgastos.backend.services;
 
+import com.appgastos.backend.config.HogarActual;
 import com.appgastos.backend.models.Categoria;
 import com.appgastos.backend.models.GrupoGasto;
 import com.appgastos.backend.repositories.CategoriaRepository;
@@ -14,9 +15,9 @@ public class CategoriaService {
 
     public List<Categoria> findAll(String tipo) {
         if (tipo != null) {
-            return repository.findByTipo(tipo);
+            return repository.findByHogarAndTipo(HogarActual.get(), tipo);
         }
-        return repository.findAll();
+        return repository.findByHogar(HogarActual.get());
     }
 
     public Categoria createCategoria(String nombre, String icono, String tipo, GrupoGasto grupo) {
@@ -25,15 +26,16 @@ public class CategoriaService {
         cat.setIcono(icono);
         cat.setTipo(tipo);
         cat.setGrupo(grupoSegunTipo(tipo, grupo));
+        cat.setHogar(HogarActual.get());
         return repository.save(cat);
     }
 
     public void deleteCategoria(Long id) {
-        repository.deleteById(id);
+        repository.findByIdAndHogar(id, HogarActual.get()).ifPresent(repository::delete);
     }
 
     public Categoria updateCategoria(Long id, String nombre, String icono, String tipo, GrupoGasto grupo) {
-        return repository.findById(id).map(cat -> {
+        return repository.findByIdAndHogar(id, HogarActual.get()).map(cat -> {
             if (nombre != null) cat.setNombre(nombre);
             if (icono != null) cat.setIcono(icono);
             if (tipo != null) cat.setTipo(tipo);

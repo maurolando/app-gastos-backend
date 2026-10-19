@@ -214,6 +214,8 @@ type Mutation {
     updateCategoria(id: ID!, nombre: String, icono: String, tipo: String, grupo: GrupoGasto): Categoria
     agregarPagoCompartido(gastoId: ID!, personaId: ID!, monto: Float!, formaPago: String!, fecha: String): PagoCompartido!
     login(nombre: String!, clave: String!): LoginResult
+    # Crea una cuenta (hogar) nueva con su primera persona y deja la sesion iniciada.
+    registrar(nombre: String!, clave: String!): LoginResult!
     setClave(id: ID!, clave: String!): Persona
 
     createShoppingItem(nombre: String!, precio: Float, lugar: String): Compra!

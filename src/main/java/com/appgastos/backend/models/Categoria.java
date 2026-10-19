@@ -18,4 +18,10 @@ public class Categoria {
     // Destino del gasto en la guía de distribución del ingreso. Null = sin clasificar.
     @Enumerated(EnumType.STRING)
     private GrupoGasto grupo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hogar_id")
+    @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
+    private Hogar hogar;
 }

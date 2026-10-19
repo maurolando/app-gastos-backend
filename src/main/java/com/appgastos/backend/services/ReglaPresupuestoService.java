@@ -1,5 +1,6 @@
 package com.appgastos.backend.services;
 
+import com.appgastos.backend.config.HogarActual;
 import com.appgastos.backend.dto.DistribucionRegla;
 import com.appgastos.backend.dto.PartidaDistribucion;
 import com.appgastos.backend.dto.PorcentajeGrupo;
@@ -55,7 +56,7 @@ public class ReglaPresupuestoService {
     private final PresupuestoService presupuestoService;
 
     public Optional<ReglaPresupuesto> getRegla() {
-        return reglaRepository.findFirstByOrderByIdAsc().map(this::aDto);
+        return reglaRepository.findFirstByHogarOrderByIdAsc(HogarActual.get()).map(this::aDto);
     }
 
     @Transactional
@@ -63,7 +64,8 @@ public class ReglaPresupuestoService {
         if (plantilla == null) {
             throw new ValidacionException("Elegí una plantilla");
         }
-        ReglaHogar regla = reglaRepository.findFirstByOrderByIdAsc().orElseGet(ReglaHogar::new);
+        ReglaHogar regla = reglaRepository.findFirstByHogarOrderByIdAsc(HogarActual.get()).orElseGet(ReglaHogar::new);
+        regla.setHogar(HogarActual.get());
         regla.setPlantilla(plantilla);
         // Con una plantilla fija los porcentajes personalizados se dejan como estaban.
         if (plantilla == PlantillaRegla.PERSONALIZADA) {
@@ -76,7 +78,7 @@ public class ReglaPresupuestoService {
 
     @Transactional
     public boolean desactivarRegla() {
-        reglaRepository.deleteAll();
+        reglaRepository.deleteByHogar(HogarActual.get());
         return true;
     }
 
@@ -103,7 +105,7 @@ public class ReglaPresupuestoService {
     public DistribucionRegla calcularDistribucion(int mes, int anio) {
         double ingreso = ingresoService.getTotalIngresos(mes, anio);
         PlantillaRegla sugerida = sugerirPlantilla(ingreso);
-        Optional<ReglaHogar> regla = reglaRepository.findFirstByOrderByIdAsc();
+        Optional<ReglaHogar> regla = reglaRepository.findFirstByHogarOrderByIdAsc(HogarActual.get());
         PlantillaRegla plantilla = regla.map(ReglaHogar::getPlantilla)
                 .orElse(sugerida != null ? sugerida : PlantillaRegla.REGLA_50_30_20);
         List<Partida> partidas = plantilla.partidas(regla.map(ReglaHogar::getPorcentajes).orElse(Map.of()));
@@ -130,7 +132,7 @@ public class ReglaPresupuestoService {
                 })
                 .toList();
 
-        int categoriasSinClasificar = (int) categoriaRepository.findByTipo("GASTO").stream()
+        int categoriasSinClasificar = (int) categoriaRepository.findByHogarAndTipo(HogarActual.get(), "GASTO").stream()
                 .filter(c -> c.getGrupo() == null)
                 .count();
 
@@ -152,7 +154,7 @@ public class ReglaPresupuestoService {
      * techo. Tampoco las categorías sin clasificar.
      */
     public List<PresupuestoSugerido> sugerirPresupuestos(int mes, int anio) {
-        ReglaHogar regla = reglaRepository.findFirstByOrderByIdAsc()
+        ReglaHogar regla = reglaRepository.findFirstByHogarOrderByIdAsc(HogarActual.get())
                 .orElseThrow(() -> new ValidacionException(
                         "Activá una regla de distribución antes de pedir presupuestos sugeridos"));
         double ingreso = ingresoService.getTotalIngresos(mes, anio);
@@ -160,7 +162,7 @@ public class ReglaPresupuestoService {
             return List.of();
         }
 
-        List<Categoria> categorias = categoriaRepository.findByTipo("GASTO").stream()
+        List<Categoria> categorias = categoriaRepository.findByHogarAndTipo(HogarActual.get(), "GASTO").stream()
                 .filter(c -> c.getGrupo() != null)
                 .sorted(Comparator.comparing(Categoria::getNombre, String.CASE_INSENSITIVE_ORDER))
                 .toList();

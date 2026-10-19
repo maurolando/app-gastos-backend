@@ -1,5 +1,8 @@
 package com.appgastos.backend.services;
 
+import com.appgastos.backend.SesionDePrueba;
+import com.appgastos.backend.models.Hogar;
+import com.appgastos.backend.repositories.HogarRepository;
 import com.appgastos.backend.dto.ResumenCuotas;
 import com.appgastos.backend.models.Categoria;
 import com.appgastos.backend.models.Gasto;
@@ -33,6 +36,9 @@ class ResumenCuotasTest {
     @Autowired private GastoService service;
     @Autowired private PersonaRepository personaRepository;
     @Autowired private CategoriaRepository categoriaRepository;
+    @Autowired private HogarRepository hogarRepository;
+
+    private Hogar hogar;
 
     private Persona mauro;
     private Persona daiana;
@@ -40,6 +46,7 @@ class ResumenCuotasTest {
 
     @BeforeEach
     void prepararDatos() {
+        hogar = SesionDePrueba.iniciar(hogarRepository, personaRepository);
         mauro = nuevaPersona("Mauro");
         daiana = nuevaPersona("Daiana");
         heladera = nuevaCategoria("Heladera");
@@ -47,12 +54,14 @@ class ResumenCuotasTest {
 
     private Persona nuevaPersona(String nombre) {
         Persona p = new Persona();
+        p.setHogar(hogar);
         p.setNombre(nombre);
         return personaRepository.save(p);
     }
 
     private Categoria nuevaCategoria(String nombre) {
         Categoria c = new Categoria();
+        c.setHogar(hogar);
         c.setNombre(nombre);
         c.setTipo("GASTO");
         return categoriaRepository.save(c);
