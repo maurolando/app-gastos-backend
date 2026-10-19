@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/maurolando/app-gastos-backend/compare/v1.6.0...v1.7.0) (2026-10-19)
+
+
+### Features
+
+* cuentas por hogar con registro desde el login ([12ed6a7](https://github.com/maurolando/app-gastos-backend/commit/12ed6a79b7aed703560c4e66fc5f150175eef8ab))
+
 ## [1.6.0](https://github.com/maurolando/app-gastos-backend/compare/v1.5.1...v1.6.0) (2026-10-14)
 
 
