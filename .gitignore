@@ -34,3 +34,6 @@ build/
 
 ### Environment ###
 .env
+
+# Estado del plugin oh-my-claudecode: lo crea en cada carpeta donde trabaja el agente.
+.omc/
