@@ -2,23 +2,33 @@ package com.appgastos.backend.services;
 
 import com.appgastos.backend.config.HogarActual;
 import com.appgastos.backend.models.Hogar;
+import com.appgastos.backend.models.Invitacion;
 import com.appgastos.backend.models.Persona;
 import com.appgastos.backend.repositories.HogarRepository;
+import com.appgastos.backend.repositories.InvitacionRepository;
 import com.appgastos.backend.repositories.PersonaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class PersonaService {
     private static final int LARGO_MINIMO_CLAVE = 6;
+    private static final int HORAS_INVITACION = 48;
+    // Sin 0/O, 1/I/L: el código se dicta o se tipea desde otro celular.
+    private static final String ALFABETO_CODIGO = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+    private static final int LARGO_CODIGO = 6;
+    private static final SecureRandom AZAR = new SecureRandom();
 
     private final PersonaRepository repository;
     private final HogarRepository hogarRepository;
+    private final InvitacionRepository invitacionRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public List<Persona> findAll() {
@@ -62,14 +72,53 @@ public class PersonaService {
     }
 
     /** Crea una cuenta nueva: un hogar vacio y su primera persona, ya con contraseña. */
-    @Transactional
     public Persona registrar(String nombre, String clave) {
+        return registrar(nombre, clave, null);
+    }
+
+    /**
+     * Con un código de invitación la persona nueva se suma a ese hogar en vez de
+     * crear uno: ve y carga lo mismo que los demás. Solo para cuentas nuevas, así
+     * nadie deja atrás datos propios.
+     */
+    @Transactional
+    public Persona registrar(String nombre, String clave, String codigoInvitacion) {
         validarClave(clave);
         Persona p = new Persona();
         p.setNombre(nombreLibre(nombre));
         p.setClave(passwordEncoder.encode(clave));
-        p.setHogar(hogarRepository.save(new Hogar()));
+        p.setHogar(codigoInvitacion == null || codigoInvitacion.isBlank()
+                ? hogarRepository.save(new Hogar())
+                : usarInvitacion(codigoInvitacion));
         return repository.save(p);
+    }
+
+    /** Genera un código de un solo uso para sumar a alguien al hogar de quien lo pide. */
+    public Invitacion crearInvitacion() {
+        Invitacion inv = new Invitacion();
+        inv.setHogar(HogarActual.get());
+        inv.setExpiraEn(LocalDateTime.now().plusHours(HORAS_INVITACION));
+        String codigo;
+        do { codigo = codigoAlAzar(); } while (invitacionRepository.existsByCodigo(codigo));
+        inv.setCodigo(codigo);
+        return invitacionRepository.save(inv);
+    }
+
+    private Hogar usarInvitacion(String codigoTipeado) {
+        // Acepta "k7p-3qx" o con espacios: se compara solo letras y números en mayúscula.
+        String codigo = codigoTipeado.toUpperCase().replaceAll("[^A-Z0-9]", "");
+        Invitacion inv = invitacionRepository.findByCodigo(codigo)
+                .filter(i -> i.getUsadaEn() == null && i.getExpiraEn().isAfter(LocalDateTime.now()))
+                .orElseThrow(() -> new ValidacionException("El código de invitación no es válido o ya venció."));
+        inv.setUsadaEn(LocalDateTime.now());
+        invitacionRepository.save(inv);
+        return inv.getHogar();
+    }
+
+    private static String codigoAlAzar() {
+        StringBuilder sb = new StringBuilder(LARGO_CODIGO);
+        for (int i = 0; i < LARGO_CODIGO; i++) sb.append(ALFABETO_CODIGO.charAt(AZAR.nextInt(ALFABETO_CODIGO.length())));
+        return sb.toString();
     }
 
     /**

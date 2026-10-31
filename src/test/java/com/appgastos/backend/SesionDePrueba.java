@@ -25,8 +25,13 @@ public final class SesionDePrueba {
         persona.setNombre("Sesion de prueba " + hogar.getId());
         persona.setHogar(hogar);
         personas.save(persona);
+        loguear(persona);
+        return hogar;
+    }
+
+    /** Deja logueada a una persona que ya existe, con su propio hogar. */
+    public static void loguear(Persona persona) {
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
                 persona, null, List.of(new SimpleGrantedAuthority("ROLE_USER"))));
-        return hogar;
     }
 }
