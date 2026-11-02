@@ -2,6 +2,7 @@ package com.appgastos.backend.controllers;
 
 import com.appgastos.backend.config.JwtService;
 import com.appgastos.backend.dto.LoginResult;
+import com.appgastos.backend.models.Invitacion;
 import com.appgastos.backend.models.Persona;
 import com.appgastos.backend.services.PersonaService;
 import lombok.RequiredArgsConstructor;
@@ -48,9 +49,15 @@ public class PersonaGraphqlController {
     }
 
     @MutationMapping
-    public LoginResult registrar(@Argument String nombre, @Argument String clave) {
-        Persona persona = service.registrar(nombre, clave);
+    public LoginResult registrar(@Argument String nombre, @Argument String clave, @Argument String codigoInvitacion) {
+        Persona persona = service.registrar(nombre, clave, codigoInvitacion);
         return new LoginResult(jwtService.generateToken(persona), persona);
+    }
+
+    @MutationMapping
+    @PreAuthorize("isAuthenticated()")
+    public Invitacion crearInvitacion() {
+        return service.crearInvitacion();
     }
 
     @MutationMapping
