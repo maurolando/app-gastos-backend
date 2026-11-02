@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/maurolando/app-gastos-backend/compare/v1.7.0...v1.8.0) (2026-11-02)
+
+
+### Features
+
+* invitar a alguien al hogar con un código de un solo uso ([5e7eaaa](https://github.com/maurolando/app-gastos-backend/commit/5e7eaaa80cc377c9d3812a33ed15d6514f8e86ba))
+
 ## [1.7.0](https://github.com/maurolando/app-gastos-backend/compare/v1.6.0...v1.7.0) (2026-10-19)
 
 
