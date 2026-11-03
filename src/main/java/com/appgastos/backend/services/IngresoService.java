@@ -17,6 +17,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class IngresoService {
+    private final PeriodoService periodoService;
 
     private final IngresoRepository ingresoRepository;
     private final PersonaRepository personaRepository;
@@ -26,14 +27,10 @@ public class IngresoService {
         List<Ingreso> all = ingresoRepository.findByHogar(HogarActual.get());
         if (mes == null && anio == null) return all;
         
+        var filtro = periodoService.filtro(mes, anio);
+
         return all.stream()
-                .filter(i -> {
-                    if (i.getFecha() == null) return false;
-                    boolean match = true;
-                    if (mes != null) match &= i.getFecha().getMonthValue() == mes;
-                    if (anio != null) match &= i.getFecha().getYear() == anio;
-                    return match;
-                })
+                .filter(i -> filtro.test(i.getFecha()))
                 .toList();
     }
 

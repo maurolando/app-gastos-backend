@@ -2,12 +2,14 @@ package com.appgastos.backend.services;
 
 import com.appgastos.backend.dto.CierreResult;
 import com.appgastos.backend.models.Gasto;
+import com.appgastos.backend.models.Hogar;
 import com.appgastos.backend.models.Ingreso;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -19,6 +21,7 @@ public class CierreService {
     private final GastoService gastoService;
     private final IngresoService ingresoService;
     private final AhorroService ahorroService;
+    private final PeriodoService periodoService;
 
     @Transactional
     public CierreResult finalizarMes(int mesActual, int anioActual) {
@@ -119,7 +122,35 @@ public class CierreService {
                 + ", omitidos: " + gastosOmitidos + ". Ingresos copiados: " + ingresosCopiados
                 + ", omitidos: " + ingresosOmitidos + ".");
 
+        PeriodoService.marcarCerrado(periodoService.hogar(), YearMonth.of(anioActual, mesActual));
+
         return new CierreResult(gastosCopiados, ingresosCopiados, gastosOmitidos, ingresosOmitidos);
+    }
+
+    /**
+     * Cierre automatico: cierra, en orden, cada periodo que ya termino y no se cerro.
+     * Lo dispara el front al abrir la app (en Render un cron puede no correr si el
+     * servidor duerme). Recibe "hoy" del cliente porque el servidor corre en UTC.
+     *
+     * @return cuantos periodos cerro
+     */
+    @Transactional
+    public int cerrarPendientes(LocalDate hoy) {
+        Hogar hogar = periodoService.hogar();
+        if (!Boolean.TRUE.equals(hogar.getCierreAutomatico())) return 0;
+
+        YearMonth actual = PeriodoService.periodoDe(hoy, PeriodoService.diaInicio(hogar));
+        if (hogar.getCerradoHasta() == null) {
+            PeriodoService.marcarCerrado(hogar, actual.minusMonths(1));
+            return 0;
+        }
+
+        int cerrados = 0;
+        for (YearMonth p = YearMonth.from(hogar.getCerradoHasta()).plusMonths(1); p.isBefore(actual); p = p.plusMonths(1)) {
+            finalizarMes(p.getMonthValue(), p.getYear());
+            cerrados++;
+        }
+        return cerrados;
     }
 
     /**

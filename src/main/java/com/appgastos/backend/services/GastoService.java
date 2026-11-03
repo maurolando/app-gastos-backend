@@ -22,6 +22,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GastoService {
+    private final PeriodoService periodoService;
     private final GastoRepository repository;
     private final PersonaRepository personaRepository;
     private final CategoriaRepository categoriaRepository;
@@ -32,17 +33,10 @@ public class GastoService {
         if (mes == null && anio == null)
             return all;
 
+        var filtro = periodoService.filtro(mes, anio);
+
         return all.stream()
-                .filter(g -> {
-                    if (g.getDate() == null)
-                        return false;
-                    boolean match = true;
-                    if (mes != null)
-                        match &= g.getDate().getMonthValue() == mes;
-                    if (anio != null)
-                        match &= g.getDate().getYear() == anio;
-                    return match;
-                })
+                .filter(g -> filtro.test(g.getDate()))
                 .toList();
     }
 
