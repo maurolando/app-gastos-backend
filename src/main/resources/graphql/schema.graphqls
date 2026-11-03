@@ -48,6 +48,12 @@ type Persona {
     tieneClave: Boolean
 }
 
+# El mes del hogar arranca el diaInicioMes (1-28): con 4, "octubre" va del 4/10 al 3/11.
+type ConfigHogar {
+    diaInicioMes: Int!
+    cierreAutomatico: Boolean!
+}
+
 type Invitacion {
     codigo: String!
     expiraEn: String!
@@ -184,6 +190,7 @@ type Query {
 
     # Estado de la compra en cuotas a la que pertenece este gasto.
     getResumenCuotas(gastoId: ID!): ResumenCuotas!
+    getConfigHogar: ConfigHogar!
 }
 
 # Las cuotas de una compra son gastos sueltos, uno por mes. Este resumen las
@@ -212,6 +219,10 @@ type Mutation {
     createAhorro(monto: Float!, fecha: String!, personaId: ID, descripcion: String): Ahorro!
     deleteAhorro(id: ID!): Boolean!
     finalizarMes(mesActual: Int!, anioActual: Int!): CierreResult!
+    # hoy (YYYY-MM-DD) viene del cliente: el servidor corre en UTC y adelantaria el corte.
+    setConfigHogar(diaInicioMes: Int!, cierreAutomatico: Boolean!, hoy: String!): ConfigHogar!
+    # Cierra los periodos ya terminados si el cierre automatico esta prendido. Devuelve cuantos.
+    cerrarMesesPendientes(hoy: String!): Int!
     pagarGasto(id: ID!, monto: Float!, personaId: ID!, formaPago: String!, fechaPago: String!): Gasto!
     reiniciarDatos: Boolean
     createCategoria(nombre: String!, icono: String, tipo: String!, grupo: GrupoGasto): Categoria!

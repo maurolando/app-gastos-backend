@@ -14,6 +14,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AhorroService {
+    private final PeriodoService periodoService;
 
     private final AhorroRepository ahorroRepository;
     private final PersonaRepository personaRepository;
@@ -22,14 +23,10 @@ public class AhorroService {
         List<Ahorro> all = ahorroRepository.findByHogar(HogarActual.get());
         if (mes == null && anio == null) return all;
         
+        var filtro = periodoService.filtro(mes, anio);
+
         return all.stream()
-                .filter(a -> {
-                    if (a.getFecha() == null) return false;
-                    boolean match = true;
-                    if (mes != null) match &= a.getFecha().getMonthValue() == mes;
-                    if (anio != null) match &= a.getFecha().getYear() == anio;
-                    return match;
-                })
+                .filter(a -> filtro.test(a.getFecha()))
                 .toList();
     }
 
