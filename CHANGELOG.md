@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/maurolando/app-gastos-backend/compare/v1.8.0...v1.9.0) (2026-11-03)
+
+
+### Features
+
+* mes del hogar con día de inicio configurable y cierre automático ([c63ba3f](https://github.com/maurolando/app-gastos-backend/commit/c63ba3f0369e52e57ada04390f983656f8ec096a))
+
 ## [1.8.0](https://github.com/maurolando/app-gastos-backend/compare/v1.7.0...v1.8.0) (2026-11-02)
 
 
