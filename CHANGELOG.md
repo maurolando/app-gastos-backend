@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/maurolando/app-gastos-backend/compare/v1.9.0...v1.10.0) (2026-11-05)
+
+
+### Features
+
+* ajustes manuales del balance del mes ([c536e61](https://github.com/maurolando/app-gastos-backend/commit/c536e61081d493edaf933323040ed166f7522276))
+
 ## [1.9.0](https://github.com/maurolando/app-gastos-backend/compare/v1.8.0...v1.9.0) (2026-11-03)
 
 
