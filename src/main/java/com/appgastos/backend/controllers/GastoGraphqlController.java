@@ -12,6 +12,7 @@ import com.appgastos.backend.services.GastoService;
 import com.appgastos.backend.services.IngresoService;
 import com.appgastos.backend.services.PagoCompartidoService;
 import com.appgastos.backend.services.AhorroService;
+import com.appgastos.backend.services.AjusteBalanceService;
 import com.appgastos.backend.services.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -36,6 +37,7 @@ public class GastoGraphqlController {
     private final PagoCompartidoService pagoCompartidoService;
     private final ReportService reportService;
     private final AhorroService ahorroService;
+    private final AjusteBalanceService ajusteBalanceService;
 
     @QueryMapping
     public List<Gasto> getAllGastos(@Argument Integer mes, @Argument Integer anio) {
@@ -53,7 +55,7 @@ public class GastoGraphqlController {
             Double ingresos = ingresoService.getTotalIngresos(mes, anio);
             Double gastos = service.getTotalGastos(mes, anio);
             Double ahorros = ahorroService.getTotalAhorros(mes, anio);
-            return ingresos - gastos - ahorros;
+            return ingresos - gastos - ahorros + ajusteBalanceService.getTotalAjustes(mes, anio);
         } catch (Exception e) {
             return 0.0;
         }

@@ -96,6 +96,15 @@ type Ahorro {
     persona: Persona
 }
 
+# Correccion manual del balance de un mes: positivo suma, negativo resta.
+# No es ingreso ni gasto: no entra en reportes ni en la guia.
+type AjusteBalance {
+    id: ID!
+    monto: Float!
+    fecha: String!
+    descripcion: String
+}
+
 type CierreResult {
     gastosCopiados: Int!
     ingresosCopiados: Int!
@@ -177,6 +186,7 @@ type Query {
     getAllIngresos(mes: Int, anio: Int): [Ingreso]!
     getAllAhorros(mes: Int, anio: Int): [Ahorro]!
     getGlobalBalance(mes: Int, anio: Int): Float!
+    getAjustesBalance(mes: Int, anio: Int): [AjusteBalance]!
     getAllCategorias(tipo: String): [Categoria]!
     getLastRecordsDates: LastRecordsDates!
     generarReporteMensual(mes: Int!, anio: Int!): String!
@@ -218,6 +228,8 @@ type Mutation {
     deleteIngreso(id: ID!): Boolean!
     createAhorro(monto: Float!, fecha: String!, personaId: ID, descripcion: String): Ahorro!
     deleteAhorro(id: ID!): Boolean!
+    createAjusteBalance(monto: Float!, fecha: String, descripcion: String): AjusteBalance!
+    deleteAjusteBalance(id: ID!): Boolean!
     finalizarMes(mesActual: Int!, anioActual: Int!): CierreResult!
     # hoy (YYYY-MM-DD) viene del cliente: el servidor corre en UTC y adelantaria el corte.
     setConfigHogar(diaInicioMes: Int!, cierreAutomatico: Boolean!, hoy: String!): ConfigHogar!

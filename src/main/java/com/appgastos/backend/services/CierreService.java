@@ -21,6 +21,7 @@ public class CierreService {
     private final GastoService gastoService;
     private final IngresoService ingresoService;
     private final AhorroService ahorroService;
+    private final AjusteBalanceService ajusteBalanceService;
     private final PeriodoService periodoService;
 
     @Transactional
@@ -210,10 +211,11 @@ public class CierreService {
 
     @Transactional
     public boolean reiniciarDatos() {
-        System.out.println("Reiniciando datos (Gastos, Ingresos y Ahorros)...");
+        System.out.println("Reiniciando datos (Gastos, Ingresos, Ahorros y Ajustes)...");
         gastoService.deleteAll();
         ingresoService.deleteAll();
         ahorroService.deleteAll();
+        ajusteBalanceService.deleteAll();
         System.out.println("Datos reiniciados con éxito.");
         return true;
     }
