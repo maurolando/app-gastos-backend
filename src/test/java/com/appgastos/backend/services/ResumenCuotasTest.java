@@ -154,4 +154,21 @@ class ResumenCuotasTest {
                 .isInstanceOf(ValidacionException.class)
                 .hasMessageContaining("cuotas");
     }
+
+    @Test
+    @DisplayName("#58: lista una vez cada compra con saldo, desde su cuota mas reciente, y omite las ya pagadas")
+    void cuotasPendientes() {
+        cuotaHeladera(1, true);
+        cuotaHeladera(2, false);
+        service.createGasto(100_000.0, heladera.getId(), LocalDate.of(2026, 7, 5), "Pagada",
+                daiana.getId(), "EFECTIVO", false, true, null, false, 1, 1);
+
+        assertThat(service.getCuotasPendientes())
+                .singleElement()
+                .satisfies(r -> {
+                    assertThat(r.cuotaActual()).isEqualTo(2);
+                    assertThat(r.totalPagado()).isEqualTo(450_000.0);
+                    assertThat(r.saldoPendiente()).isEqualTo(4_950_000.0);
+                });
+    }
 }

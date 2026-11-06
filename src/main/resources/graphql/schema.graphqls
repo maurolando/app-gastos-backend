@@ -201,6 +201,19 @@ type Query {
     # Estado de la compra en cuotas a la que pertenece este gasto.
     getResumenCuotas(gastoId: ID!): ResumenCuotas!
     getConfigHogar: ConfigHogar!
+    # Compras en cuotas a las que les falta pagar algo (#58).
+    getCuotasPendientes: [ResumenCuotas!]!
+    # Saldo del mes de cada persona del hogar (#59).
+    getSaldosPorPersona(mes: Int!, anio: Int!): [SaldoPersona!]!
+}
+
+# Ingresos - gastos pagados - ahorros de la persona. Sin ajustes ni lo cargado sin persona.
+type SaldoPersona {
+    persona: Persona!
+    ingresos: Float!
+    gastos: Float!
+    ahorros: Float!
+    saldo: Float!
 }
 
 # Las cuotas de una compra son gastos sueltos, uno por mes. Este resumen las
