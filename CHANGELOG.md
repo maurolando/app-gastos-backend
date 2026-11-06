@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.1](https://github.com/maurolando/app-gastos-backend/compare/v1.10.0...v1.10.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* quitar reiniciarDatos y guardar nombres y descripciones en mayúsculas ([f44a320](https://github.com/maurolando/app-gastos-backend/commit/f44a32025030fa4234c30c18f61c359a9ff35298))
+
 ## [1.10.0](https://github.com/maurolando/app-gastos-backend/compare/v1.9.0...v1.10.0) (2026-11-05)
 
 
