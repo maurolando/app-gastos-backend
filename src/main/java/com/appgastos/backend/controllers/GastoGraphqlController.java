@@ -3,6 +3,10 @@ package com.appgastos.backend.controllers;
 import com.appgastos.backend.dto.CierreResult;
 import com.appgastos.backend.models.Categoria;
 import com.appgastos.backend.dto.ResumenCuotas;
+import com.appgastos.backend.dto.SaldoPersona;
+import com.appgastos.backend.models.Ahorro;
+import com.appgastos.backend.models.Ingreso;
+import com.appgastos.backend.models.Persona;
 import com.appgastos.backend.models.Gasto;
 import com.appgastos.backend.models.GrupoGasto;
 import com.appgastos.backend.models.PagoCompartido;
@@ -14,6 +18,7 @@ import com.appgastos.backend.services.PagoCompartidoService;
 import com.appgastos.backend.services.AhorroService;
 import com.appgastos.backend.services.AjusteBalanceService;
 import com.appgastos.backend.services.ReportService;
+import com.appgastos.backend.services.PersonaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -38,6 +43,7 @@ public class GastoGraphqlController {
     private final ReportService reportService;
     private final AhorroService ahorroService;
     private final AjusteBalanceService ajusteBalanceService;
+    private final PersonaService personaService;
 
     @QueryMapping
     public List<Gasto> getAllGastos(@Argument Integer mes, @Argument Integer anio) {
@@ -61,6 +67,39 @@ public class GastoGraphqlController {
         }
     }
 
+
+    /**
+     * #59: el saldo de cada persona del hogar, con los mismos filtros que getGlobalBalance.
+     * Los ajustes y lo cargado sin persona no son de nadie: el front los muestra aparte.
+     */
+    @QueryMapping
+    public List<SaldoPersona> getSaldosPorPersona(@Argument Integer mes, @Argument Integer anio) {
+        List<Gasto> gastos = service.findAll(mes, anio).stream().filter(g -> Boolean.TRUE.equals(g.getPagado())).toList();
+        List<Ingreso> ingresos = ingresoService.getAllIngresos(mes, anio);
+        List<Ahorro> ahorros = ahorroService.getAllAhorros(mes, anio);
+        return personaService.findAll().stream().map(p -> {
+            double ingreso = ingresos.stream().filter(i -> esDe(i.getPersona(), p)).mapToDouble(i -> valor(i.getMonto())).sum();
+            double ahorro = ahorros.stream().filter(a -> esDe(a.getPersona(), p)).mapToDouble(a -> valor(a.getMonto())).sum();
+            double gasto = gastos.stream().mapToDouble(g -> Boolean.TRUE.equals(g.getEsCompartido())
+                    ? (g.getPagosCompartidos() == null ? 0 : g.getPagosCompartidos().stream()
+                        .filter(pc -> esDe(pc.getPersona(), p)).mapToDouble(pc -> valor(pc.getMonto())).sum())
+                    : (esDe(g.getPersona(), p) ? valor(g.getAmount()) : 0)).sum();
+            return new SaldoPersona(p, ingreso, gasto, ahorro, ingreso - gasto - ahorro);
+        }).toList();
+    }
+
+    private static boolean esDe(Persona persona, Persona p) {
+        return persona != null && persona.getId().equals(p.getId());
+    }
+
+    private static double valor(Double monto) {
+        return monto != null ? monto : 0.0;
+    }
+
+    @QueryMapping
+    public List<ResumenCuotas> getCuotasPendientes() {
+        return service.getCuotasPendientes();
+    }
 
     @QueryMapping
     public List<Categoria> getAllCategorias(@Argument String tipo) {

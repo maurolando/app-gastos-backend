@@ -18,6 +18,9 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
@@ -145,7 +148,29 @@ public class GastoService {
             throw new ValidacionException("Este gasto no esta dividido en cuotas.");
         }
 
-        List<Gasto> cuotas = repository.findByHogar(HogarActual.get()).stream()
+        return resumen(gasto, repository.findByHogar(HogarActual.get()));
+    }
+
+    /**
+     * #58: las compras en cuotas del hogar a las que todavia les falta pagar algo.
+     * Cada compra se resume desde su cuota mas reciente.
+     */
+    public List<ResumenCuotas> getCuotasPendientes() {
+        List<Gasto> todos = repository.findByHogar(HogarActual.get());
+        Map<List<Object>, Gasto> ultimaPorCompra = new LinkedHashMap<>();
+        todos.stream()
+                .filter(g -> g.getCuotasTotales() != null && g.getCuotaActual() != null)
+                .forEach(g -> ultimaPorCompra.merge(
+                        Arrays.asList(g.getCuotasTotales(), g.getDescription(), idDeCategoria(g), idDePersona(g)),
+                        g, (a, b) -> a.getCuotaActual() >= b.getCuotaActual() ? a : b));
+        return ultimaPorCompra.values().stream()
+                .map(g -> resumen(g, todos))
+                .filter(r -> r.saldoPendiente() > 0)
+                .toList();
+    }
+
+    private ResumenCuotas resumen(Gasto gasto, List<Gasto> todos) {
+        List<Gasto> cuotas = todos.stream()
                 .filter(g -> esDeLaMismaCompra(g, gasto))
                 .sorted(Comparator.comparing(Gasto::getCuotaActual,
                         Comparator.nullsLast(Comparator.naturalOrder())))
