@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.2](https://github.com/maurolando/app-gastos-backend/compare/v1.10.1...v1.10.2) (2026-11-06)
+
+
+### Performance Improvements
+
+* agrupar la carga de relaciones de Hibernate ([91933db](https://github.com/maurolando/app-gastos-backend/commit/91933db266435228ac49b6af39bb97c944b675b7))
+
 ## [1.10.1](https://github.com/maurolando/app-gastos-backend/compare/v1.10.0...v1.10.1) (2026-11-06)
 
 
