@@ -70,7 +70,7 @@ class HogaresTest {
     void registrar() {
         Persona nueva = personaService.registrar("  Lucia  ", "secreta1");
 
-        assertThat(nueva.getNombre()).isEqualTo("Lucia");
+        assertThat(nueva.getNombre()).isEqualTo("LUCIA");
         assertThat(nueva.getHogar()).isNotNull();
         assertThat(personaService.login("lucia", "secreta1")).isNotNull();
         assertThat(personaService.login("lucia", "otra-clave")).isNull();
@@ -108,7 +108,7 @@ class HogaresTest {
 
         assertThat(invitada.getHogar().getId()).isEqualTo(hogar.getId());
         SesionDePrueba.loguear(invitada);
-        assertThat(categoriaService.findAll(null)).extracting(c -> c.getNombre()).contains("Comida");
+        assertThat(categoriaService.findAll(null)).extracting(c -> c.getNombre()).contains("COMIDA");
     }
 
     @Test

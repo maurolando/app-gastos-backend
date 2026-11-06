@@ -188,16 +188,6 @@ public class GastoGraphqlController {
     }
 
     @MutationMapping
-    public boolean reiniciarDatos() {
-        try {
-            return cierreService.reiniciarDatos();
-        } catch (Exception e) {
-            System.err.println("Error en reiniciarDatos: " + e.getMessage());
-            return false;
-        }
-    }
-
-    @MutationMapping
     public Categoria createCategoria(@Argument String nombre, @Argument String icono, @Argument String tipo,
             @Argument GrupoGasto grupo) {
         return categoriaService.createCategoria(nombre, icono, tipo, grupo);
