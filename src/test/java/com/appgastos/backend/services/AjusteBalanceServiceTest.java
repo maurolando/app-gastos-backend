@@ -26,7 +26,6 @@ class AjusteBalanceServiceTest {
 
     @Autowired private AjusteBalanceService service;
     @Autowired private IngresoService ingresoService;
-    @Autowired private CierreService cierreService;
     @Autowired private GastoGraphqlController gastoController;
     @Autowired private HogarRepository hogarRepository;
     @Autowired private PersonaRepository personaRepository;
@@ -72,13 +71,5 @@ class AjusteBalanceServiceTest {
                 .findFirst().orElseThrow();
         SesionDePrueba.loguear(duenio);
         assertThat(service.getAjustes(null, null)).hasSize(1);
-    }
-
-    @Test
-    @DisplayName("reiniciar datos también borra los ajustes")
-    void reiniciarBorraAjustes() {
-        service.createAjuste(10_000.0, LocalDate.of(2026, 10, 1), null);
-        cierreService.reiniciarDatos();
-        assertThat(service.getAjustes(null, null)).isEmpty();
     }
 }

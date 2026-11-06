@@ -5,6 +5,8 @@ import com.appgastos.backend.models.Hogar;
 import com.appgastos.backend.repositories.HogarRepository;
 import com.appgastos.backend.repositories.PersonaRepository;
 import com.appgastos.backend.models.Categoria;
+import com.appgastos.backend.models.Gasto;
+import com.appgastos.backend.models.Persona;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,6 +52,20 @@ class CategoriaServiceTest {
         Categoria editada = service.updateCategoria(alquiler.getId(), null, null, null, null);
 
         assertThat(editada.getGrupo()).isNull();
-        assertThat(editada.getNombre()).isEqualTo("Alquiler");
+        assertThat(editada.getNombre()).isEqualTo("ALQUILER");
+    }
+
+    @Test
+    @DisplayName("regla global: nombres de personas y categorias y descripciones de gastos en mayusculas")
+    void textosEnMayusculas() {
+        assertThat(service.createCategoria("Peluquería", "cut", "GASTO", null).getNombre()).isEqualTo("PELUQUERÍA");
+
+        Persona persona = new Persona();
+        persona.setNombre("Ñandú");
+        assertThat(persona.getNombre()).isEqualTo("ÑANDÚ");
+
+        Gasto gasto = new Gasto();
+        gasto.setDescription("luz de octubre");
+        assertThat(gasto.getDescription()).isEqualTo("LUZ DE OCTUBRE");
     }
 }

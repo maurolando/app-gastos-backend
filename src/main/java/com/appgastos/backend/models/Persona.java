@@ -35,4 +35,9 @@ public class Persona {
     @lombok.ToString.Exclude
     @lombok.EqualsAndHashCode.Exclude
     private Hogar hogar;
+
+    // Regla global: nombres de personas, categorías y descripciones de gastos en MAYÚSCULAS.
+    public void setNombre(String nombre) {
+        this.nombre = nombre == null ? null : nombre.toUpperCase(java.util.Locale.ROOT);
+    }
 }

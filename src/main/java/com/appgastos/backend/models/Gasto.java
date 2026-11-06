@@ -41,4 +41,9 @@ public class Gasto {
     @lombok.ToString.Exclude
     @lombok.EqualsAndHashCode.Exclude
     private Hogar hogar;
+
+    // Regla global: nombres de personas, categorías y descripciones de gastos en MAYÚSCULAS.
+    public void setDescription(String description) {
+        this.description = description == null ? null : description.toUpperCase(java.util.Locale.ROOT);
+    }
 }

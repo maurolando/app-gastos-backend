@@ -236,7 +236,6 @@ type Mutation {
     # Cierra los periodos ya terminados si el cierre automatico esta prendido. Devuelve cuantos.
     cerrarMesesPendientes(hoy: String!): Int!
     pagarGasto(id: ID!, monto: Float!, personaId: ID!, formaPago: String!, fechaPago: String!): Gasto!
-    reiniciarDatos: Boolean
     createCategoria(nombre: String!, icono: String, tipo: String!, grupo: GrupoGasto): Categoria!
     deleteCategoria(id: ID!): Boolean!
     updateCategoria(id: ID!, nombre: String, icono: String, tipo: String, grupo: GrupoGasto): Categoria

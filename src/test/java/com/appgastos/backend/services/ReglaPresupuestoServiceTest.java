@@ -218,9 +218,9 @@ class ReglaPresupuestoServiceTest {
                 .extracting(s -> s.categoria().getNombre(), PresupuestoSugerido::montoSugerido,
                         PresupuestoSugerido::montoReferencia, PresupuestoSugerido::montoActual)
                 .containsExactlyInAnyOrder(
-                        tuple("Alquiler", 1_500_000.0, 1_500_000.0, 1_000_000.0),
-                        tuple("Supermercado", 600_000.0, 600_000.0, null),
-                        tuple("Salidas", 150_000.0, 150_000.0, null));
+                        tuple("ALQUILER", 1_500_000.0, 1_500_000.0, 1_000_000.0),
+                        tuple("SUPERMERCADO", 600_000.0, 600_000.0, null),
+                        tuple("SALIDAS", 150_000.0, 150_000.0, null));
     }
 
     @Test
@@ -238,7 +238,7 @@ class ReglaPresupuestoServiceTest {
         // Deseos recomienda 277.004 y se gastaron 500.000: cada una baja al 55,4%.
         assertThat(sugeridos)
                 .extracting(s -> s.categoria().getNombre(), PresupuestoSugerido::montoSugerido)
-                .containsExactly(tuple("Salidas", 221_000.0), tuple("Streaming", 55_000.0));
+                .containsExactly(tuple("SALIDAS", 221_000.0), tuple("STREAMING", 55_000.0));
         assertThat(sugeridos.stream().mapToDouble(PresupuestoSugerido::montoSugerido).sum())
                 .isLessThanOrEqualTo(277_004);
     }
@@ -292,7 +292,7 @@ class ReglaPresupuestoServiceTest {
 
         assertThat(presupuestoService.getPresupuestos(MES, ANIO))
                 .extracting(p -> p.getCategoria().getNombre(), Presupuesto::getMonto)
-                .containsExactlyInAnyOrder(tuple("Alquiler", 2_100_000.0), tuple("Salidas", 400_000.0));
+                .containsExactlyInAnyOrder(tuple("ALQUILER", 2_100_000.0), tuple("SALIDAS", 400_000.0));
     }
 
     @Test
