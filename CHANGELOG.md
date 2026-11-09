@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.3](https://github.com/maurolando/app-gastos-backend/compare/v1.10.2...v1.10.3) (2026-11-09)
+
+
+### Bug Fixes
+
+* dar por pagadas las cuotas anteriores a la primera cargada ([192b6ab](https://github.com/maurolando/app-gastos-backend/commit/192b6ab8cd7b70f6c2a1e8905ed3ae23442ddc71))
+
 ## [1.10.2](https://github.com/maurolando/app-gastos-backend/compare/v1.10.1...v1.10.2) (2026-11-06)
 
 
