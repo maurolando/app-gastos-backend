@@ -102,6 +102,19 @@ class ResumenCuotasTest {
     }
 
     @Test
+    @DisplayName("#64: una compra cargada desde la cuota 10 da por pagadas las 9 anteriores")
+    void cargadaAMitad() {
+        Gasto decima = cuotaHeladera(10, true);
+
+        ResumenCuotas resumen = service.getResumenCuotas(decima.getId());
+
+        assertThat(resumen.totalPagado()).isEqualTo(4_500_000.0);
+        assertThat(resumen.saldoPendiente()).isEqualTo(900_000.0);
+        assertThat(service.getCuotasPendientes()).singleElement()
+                .satisfies(r -> assertThat(r.saldoPendiente()).isEqualTo(900_000.0));
+    }
+
+    @Test
     @DisplayName("no mezcla las cuotas de otra persona aunque todo lo demas coincida")
     void noMezclaOtraPersona() {
         cuotaHeladera(1, true);

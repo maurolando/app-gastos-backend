@@ -178,7 +178,9 @@ public class GastoService {
 
         double montoCuota = gasto.getAmount() != null ? gasto.getAmount() : 0.0;
         double totalAPagar = montoCuota * gasto.getCuotasTotales();
-        double totalPagado = cuotas.stream()
+        // #64: si la compra se cargo desde una cuota > 1, las anteriores se pagaron antes de usar la app.
+        double previas = montoCuota * (cuotas.get(0).getCuotaActual() - 1);
+        double totalPagado = previas + cuotas.stream()
                 .filter(g -> Boolean.TRUE.equals(g.getPagado()))
                 .mapToDouble(g -> g.getAmount() != null ? g.getAmount() : 0.0)
                 .sum();
