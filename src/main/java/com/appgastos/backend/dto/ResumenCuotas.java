@@ -9,7 +9,8 @@ import java.util.List;
  *
  * @param montoCuota     lo que se paga por mes
  * @param totalAPagar    montoCuota por cuotasTotales
- * @param totalPagado    suma de las cuotas marcadas como pagadas, no las vencidas
+ * @param totalPagado    suma de las cuotas marcadas como pagadas, no las vencidas, mas las
+ *                       anteriores a la primera cargada, que se dan por pagadas (#64)
  * @param saldoPendiente lo que falta: totalAPagar menos totalPagado
  * @param cuotas         las cuotas encontradas, ordenadas por numero
  */
